@@ -13,17 +13,17 @@
 </head>
 <body>
 	<div id="left">
-		<h2 style="display: inline-block;">Subject</h2>
+		<h2 style="display: inline-block; margin-top: 0;">Subject</h2>
 		<input type="button" value="Select All" onClick="selectText('emailsub')" />
 		<div id="emailsub"></div>
-		<h2 style="display: inline-block;">Body</h2>
+		<h2 style="display: inline-block; margin-top: 0;">Body</h2>
 		<input type="button" value="Select All" onClick="selectText('emailbod')" />
 		<div id="emailbod"></div>
 	</div>
 	
 	<div id="right">
 		<form id="form1" method="post">
-			<h2>Options</h2>
+			<h2 style="margin-top: 0;">Options</h2>
 			<label>On Call: 
 				<select id="oncall">
 					<option value="Colin 817.504.7780">Colin</option>
@@ -38,7 +38,7 @@
 				<option value="am">am</option>
 				<option value="pm">pm</option>
 			</select><br />
-			<input type="button" onClick="removeAsset()" value="Remove Last Asset" />
+			<input type="button" onClick="removeAsset()" value="Remove Asset" />
 			<input type="button" onClick="removePatch()" value="Remove Patch" /><br />
 			<input type="button" onClick="exportJSON()" value="Export" /><br />
 			<input type="file" id="FILE" accept=".json" /><input type="button" onClick="loadFile()" value="Import" /><br />
