@@ -1,59 +1,73 @@
 $(document).ready(function() {
-	$("#hp1").change(function( event ) {
-		if($(this).is(":checked")) {
+	$('#hp1').change(function() {
+		if($(this).is(':checked'))
 			$('#hpromo1').prop('disabled', true).val($(this).val());
-		}
-		else {
-			$('#hpromo1').prop('disabled', false).val("");
-		}
-	});
-	$("#hp2").change(function( event ) {
-		if($(this).is(":checked")) {
-			$('#hpromo2').prop('disabled', true).val($(this).val());
-		}
-		else {
-			$('#hpromo2').prop('disabled', false).val("");
-		}
-	});
-	$("#dash1").change(function( event ) {
-		if($(this).is(":checked")) {
-			$('#afterdash1').prop('disabled', true).val($(this).val());
-		}
-		else {
-			$('#afterdash1').prop('disabled', false).val("");
-		}
-	});
-	$("#dash2").change(function( event ) {
-		if($(this).is(":checked")) {
-			$('#afterdash2').prop('disabled', true).val($(this).val());
-		}
-		else {
-			$('#afterdash2').prop('disabled', false).val("");
-		}
+		else
+			$('#hpromo1').prop('disabled', false).val('');
 	});
 	
-	$(".datepicker").datepicker({
-		dateFormat: "m/d"
+	$('#hp2').change(function() {
+		if($(this).is(':checked'))
+			$('#hpromo2').prop('disabled', true).val($(this).val());
+		else
+			$('#hpromo2').prop('disabled', false).val('');
 	});
-	$(".datepicker").datepicker('setDate', today);
-	$("input[type=text]").blur(function() {
-		$(this).val( $.trim( $(this).val() ) );
+	
+	$('#dash1').change(function() {
+		if($(this).is(':checked'))
+			$('#afterdash1').prop('disabled', true).val($(this).val());
+		else
+			$('#afterdash1').prop('disabled', false).val('');
 	});
-	$( "#accordion" ).accordion({
-		heightStyle: "content"
+	
+	$('#dash2').change(function() {
+		if($(this).is(':checked'))
+			$('#afterdash2').prop('disabled', true).val($(this).val());
+		else
+			$('#afterdash2').prop('disabled', false).val('');
+	});
+	
+	$('.datepicker').datepicker({
+		dateFormat: 'm/d'
+	}).datepicker('setDate', today);
+	
+	$('input[type=text]').blur(function() {
+		$(this).val($.trim($(this).val()));
+	});
+	
+	$('#accordion').accordion({
+		heightStyle: 'content'
+	});
+	
+	//Bubble down from parent element since assets aren't available on document ready
+	
+	$('#emailbod').on('mousedown', '#patchlist div[patch]', function() {
+		$('.selected').removeClass('selected');
+		$(this).addClass('selected');
+		currentPatch = parseInt($(this).attr('patch'));
+		currentAsset = -1;
+		console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
+	});
+	
+	$('#emailbod').on('mousedown', '#patchlist span[asset]', function(e) {
+		e.stopPropagation();
+		$('.selected').removeClass('selected');
+		$(this).addClass('selected').parents('div').addClass('selected');
+		currentPatch = parseInt($(this).parents('div').attr('patch'));
+		currentAsset = parseInt($(this).attr('asset'));
+		console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
 	});
 });
 
 // Globals
 var patches = [];
 var preDel = 0;
-var currentID = 0;
+var currentPatch = -1, currentAsset = -1;
 var today = new Date();
-var months = ["January", "February", "March", "April", "May", "June",
-			"July", "August", "September", "October", "November", "December"];
+var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 /*
-Types:
+Asset Types:
 1 = Header Promo
 2 = Ticker
 3 = Main
@@ -78,22 +92,21 @@ States:
 5 = Dash (Temporary)
 */
 
-function Asset(name, type, path, icid, state) {
-	this.name = name;
-	this.type = type;
-	this.path = path;
-	this.icid = icid || "";
-	this.state = state || "";
-}
-
 function Patch(name, date, time, folder, merchant) {
 	this.name = name;
 	this.date = date;
 	this.time = time;
-	this.folder = folder || "";
+	this.folder = folder || '';
 	this.merchant = merchant;
-	this.id = preDel;
 	this.assets = [];
+}
+
+function Asset(name, type, path, icid, state) {
+	this.name = name;
+	this.type = type;
+	this.path = path;
+	this.icid = icid || '';
+	this.state = state || '';
 }
 
 function addPatch() {
@@ -105,133 +118,105 @@ function addPatch() {
 	var merchant = form1.merchant.value;
 	
 	if (name == '') {
-		alert("Missing patch name.");
+		alert('Missing patch name.');
 		form1.patchname.focus();
 		return;
 	}
 	if (date == '') {
-		alert("Missing patch date.");
+		alert('Missing patch date.');
 		form1.patchdate.focus();
 		return;
 	}
 	if (time == 'am' || time == 'pm') {
-		alert("Missing patch time.");
+		alert('Missing patch time.');
 		form1.patchtime.focus();
 		return;
 	}
 	if (folder == '' || /\s/.test(folder)) {
-		alert("Missing or invalid patch folder name.");
+		alert('Missing or invalid patch folder name.');
 		form1.patchfolder.focus();
 		return;
 	}
 	if (merchant == '') {
-		alert("Missing merchant name.");
+		alert('Missing merchant name.');
 		form1.merchant.focus();
 		return;
 	}
 	
-	preDel++;
 	var patch = new Patch(name, date, time, folder, merchant);
 	patches.push(patch);
-	currentID = preDel;
+	currentPatch = patches.length - 1;
 	
 	buildOutput(0);
-	console.log("Current ID: " + currentID);
+	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
 	console.log(patches);
 }
 
 function removePatch() {
-	if (currentID > 0)
-	{	
-		for (var i = 0; i < patches.length; i++) {
-			if(patches[i].id == currentID) {
-				patches.splice(i, 1);
-				
-				if (patches.length == 0)
-					currentID = 0;
-				else if (i == patches.length)
-					currentID = patches[i-1].id;
-				else
-					currentID = patches[i].id;
-				
-				buildOutput(0);
-				break;
-			}
-		}
-		
-		console.log("Current ID: " + currentID);
-		console.log(patches);
-	}
-	else {
-		alert("No more patches to remove.");
-	}
-}
-
-function needPatch() {
-	alert("Must have at least 1 patch before adding any assets.");
-	$("#accordion").accordion({ active: 0 });
-	form1.patchname.focus();
-}
-
-function exportJSON() {
-	var json = JSON.stringify(patches, null, "\t");
-	var blob = new Blob([json], {type: "text/plain;charset=utf-8"});
-	today = new Date();
-	var name = (today.getMonth() + 1) + "_" + today.getDate() + "_" + today.getFullYear().toString().substr(2,2) + "_";
-	var hours = today.getHours();
-	var period = "am";
-	if (hours >= 12) {
-		hours -= 12;
-		period = "pm";
-	}
-	if (hours == 0) {
-		hours = 12;
-	}
-	name += hours.toString() + today.getMinutes() + period + ".json";
-	saveAs(blob, name);
-}
-
-function loadFile() {
-	var file = form1.FILE.files[0];
-	if (file) {
-		var reader = new FileReader();
-		reader.onload = function() {
-			importJSON(reader.result);
-		}
-		reader.readAsText(file);
-	}
-	else {
-		alert("Missing input file.");
-	}
-}
-
-function importJSON(data) {
-	var json = JSON.parse(data);
-	
-	if (json.length < 1) {
-		alert("Empty or corrupt JSON file.");
+	if (currentPatch < 0) {
+		alert('No more patches to remove.');
 		return;
 	}
 	
-	currentID = preDel + 1;
-	for (i = 0; i < json.length; i++) {
-		preDel++;
-		json[i].id = preDel;
-	}
+	patches.splice(currentPatch, 1);
 	
-	patches = patches.concat(json);
+	if (patches.length == 0 || currentPatch == patches.length)
+		currentPatch--;
+	
 	buildOutput(0);
 	
-	console.log("Current ID: " + currentID);
+	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
 	console.log(patches);
 }
 
-function loadPrev() {
-	var json = localStorage.getItem("previous-json");
-	importJSON(json);
+function patchMove() {
+	var order = $('#patchlist').sortable('toArray', {attribute: 'patch'});
+	order = order.map(Number);
+	var temp = [];
+	currentPatch = order.indexOf(currentPatch);
+	
+	for (var i = 0; i < patches.length; i++) {
+		temp[i] = patches[order[i]];
+	}
+	
+	patches = temp;
+	buildOutput(0);
+	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
+	console.log(patches);
 }
 
-function compareAssets(a,b) {
+function noPatch() {
+	alert('Must have at least 1 patch before adding any assets.');
+	$('#accordion').accordion({ active: 0 });
+	form1.patchname.focus();
+}
+
+function addAssets(assets) {
+	patches[currentPatch].assets = patches[currentPatch].assets.concat(assets);
+	patches[currentPatch].assets = patches[currentPatch].assets.sort(sortAssets);
+	console.log(patches[currentPatch].assets);
+
+	buildOutput(0);
+	console.log(patches);
+}
+
+function removeAsset() {
+	if (currentAsset < 0) {
+		alert('No more assets to remove.');
+		return;
+	}
+	
+	patches[currentPatch].assets.splice(currentAsset, 1);
+	
+	if (patches[currentPatch].assets.length == 0 || currentAsset == patches[currentPatch].assets.length)
+		currentAsset--;
+	
+	buildOutput(0);
+	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
+	console.log(patches[currentPatch].assets);
+}
+
+function sortAssets(a,b) {
 	if (a.type < b.type)
 		return -1;
 	else if (a.type > b.type)
@@ -246,129 +231,156 @@ function compareAssets(a,b) {
 	}
 }
 
-function addAssets(assets) {
-	for (var i = 0; i < patches.length; i++) {
-		if(patches[i].id == currentID) {
-			patches[i].assets = patches[i].assets.concat(assets);
-			patches[i].assets = patches[i].assets.sort(compareAssets);
-			console.log(patches[i].assets);
-			break;
+function loadPrev() {
+	var json = localStorage.getItem('previous-json');
+	importJSON(json);
+}
+
+function loadFile() {
+	var file = form1.FILE.files[0];
+	if (file) {
+		var reader = new FileReader();
+		reader.onload = function() {
+			importJSON(reader.result);
 		}
+		reader.readAsText(file);
+	}
+	else {
+		alert('Missing input file.');
+	}
+}
+
+function importJSON(data) {
+	var json = JSON.parse(data);
+	
+	if (json.length < 1) {
+		alert('Empty or corrupt JSON file.');
+		return;
 	}
 	
+	currentPatch = patches.length;
+	
+	patches = patches.concat(json);
 	buildOutput(0);
+	
+	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
 	console.log(patches);
 }
 
-function patchMove() {
-	var order = $("#patchlist").sortable("toArray", {attribute: "patchid"});
-	order = order.map(Number);
-	var place;
-	var temp = [];
-	
-	for (var i = 0; i < patches.length; i++) {
-		place = order.indexOf(patches[i].id);
-		temp[place] = patches[i];
+function exportJSON() {
+	var json = JSON.stringify(patches, null, '\t');
+	var blob = new Blob([json], {type: 'text/plain;charset=utf-8'});
+	today = new Date();
+	var name = (today.getMonth() + 1) + '_' + today.getDate() + '_' + today.getFullYear().toString().substr(2,2) + '_';
+	var hours = today.getHours();
+	var period = 'am';
+	if (hours >= 12) {
+		hours -= 12;
+		period = 'pm';
 	}
+	if (hours == 0)
+		hours = 12;
 	
-	patches = temp;
-	buildOutput(0);
-	console.log(patches);
+	name += hours.toString() + today.getMinutes() + period + '.json';
+	saveAs(blob, name);
 }
 
 function clearForm() {
 	form1.reset();
-	$(".datepicker").datepicker('setDate', today);
-	$('#hpromo1, #hpromo2').prop('disabled', false);
-	$('#afterdash1, #afterdash2').prop('disabled', false);
+	$('.datepicker').datepicker('setDate', today);
+	$('#hpromo1, #hpromo2, #afterdash1, #afterdash2').prop('disabled', false);
 }
 
-function removeAsset() {
-	for (var i = 0; i < patches.length; i++) {
-		if (patches[i].id == currentID) {
-			patches[i].assets.pop();
-			
-			buildOutput(0);
-			console.log(patches[i].assets);
-			break;
-		}
+function selectText(containerid) {
+	var container = document.getElementById(containerid);
+	var range;
+	
+	if (container.innerHTML == '')
+		return;
+	
+	if (document.body.createTextRange) {
+		range = document.body.createTextRange();
+		range.moveToElementText(container);
+		range.select();
+	}
+	else if (window.getSelection) {	
+		range = document.createRange();
+		range.selectNodeContents(container);
+		window.getSelection().removeAllRanges();
+		window.getSelection().addRange(range);
 	}
 }
 
 function addHomepage() {
-	if (currentID <= 0) {
-		needPatch();
+	if (currentPatch < 0) {
+		noPatch();
 		return;
 	}
 	
 	var asset;
 	var assets = [];
-	var catid = "cat000000";
+	var catid = 'cat000000';
 	var icid;
 	
-	var hpromo = "";
-	var hpromos = document.getElementsByName("hpromo");
+	var hpromo = '';
+	var hpromos = document.getElementsByName('hpromo');
 	for (var i = 0; i < hpromos.length; i++) {
-		if (hpromos[i].value != "" && hpromo == "") {
+		if (hpromos[i].value != '' && hpromo == '')
 			hpromo = hpromos[i].value;
-		}
-		else if (hpromos[i].value != "" && hpromo != "") {
-			hpromo += " <span style='color:red;'>+</span> " + hpromos[i].value;
-		}
+		else if (hpromos[i].value != '' && hpromo != '')
+			hpromo += ' <span style="color:red;">+</span> ' + hpromos[i].value;
 	}
-	if (hpromo != "") {
+	if (hpromo != '') {
 		asset = new Asset(hpromo, 1, catid);
 		assets.push(asset);
 	}
 	
 	var ticker = form1.ticker.value;
-	if (ticker != "") {
+	if (ticker != '') {
 		asset = new Asset(ticker, 2, catid);
 		assets.push(asset);
 	}
 	
-	var mains = document.getElementsByName("main");
-	var micids = document.getElementsByName("micid");
+	var mains = document.getElementsByName('main');
+	var micids = document.getElementsByName('micid');
 	for (i = 0; i < mains.length; i++) {
-		if (mains[i].value != "") {
-			icid = (micids[i].value != "") ? micids[i].value : "";
-			asset = new Asset(("Main " + mains[i].getAttribute("data") + ": " + mains[i].value), 3, catid, icid);
+		if (mains[i].value != '') {
+			icid = (micids[i].value != '') ? micids[i].value : '';
+			asset = new Asset(('Main ' + mains[i].getAttribute('data') + ': ' + mains[i].value), 3, catid, icid);
 			assets.push(asset);
 		}
 	}
 	
-	var promos = document.getElementsByName("promo");
-	var picids = document.getElementsByName("picid");
+	var promos = document.getElementsByName('promo');
+	var picids = document.getElementsByName('picid');
 	for (i = 0; i < promos.length; i++) {
-		if (promos[i].value != "") {
-			icid = (picids[i].value != "") ? picids[i].value : "";
-			asset = new Asset(("Promo " + promos[i].getAttribute("data") + ": " + promos[i].value), 4, catid, icid);
+		if (promos[i].value != '') {
+			icid = (picids[i].value != '') ? picids[i].value : '';
+			asset = new Asset(('Promo ' + promos[i].getAttribute('data') + ': ' + promos[i].value), 4, catid, icid);
 			assets.push(asset);
 		}
 	}
 	
-	if (assets.length > 0) {
+	if (assets.length > 0)
 		addAssets(assets);
-	}
-	else {
-		alert("No assets added for homepage.");
-	}
+	else
+		alert('No assets added for homepage.');
 }
 
 function addDesignerIndex() {
-	if (currentID <= 0) {
-		needPatch();
+	if (currentPatch < 0) {
+		noPatch();
 		return;
 	}
 	
-	var selections = document.getElementsByName("di");
+	var selections = document.getElementsByName('di');
 	var asset;
 	var assets = [];
 	var catid;
 	for (var j = 0; j < selections.length; j++) {
 		if (selections[j].checked) {
 			catid = selections[j].value;
-			asset = new Asset(selections[j].getAttribute("data"), 5, catid);
+			asset = new Asset(selections[j].getAttribute('data'), 5, catid);
 			assets.push(asset);
 		}
 	}
@@ -377,14 +389,14 @@ function addDesignerIndex() {
 }
 
 function addSiloMain4() {
-	if (currentID <= 0) {
-		needPatch();
+	if (currentPatch < 0) {
+		noPatch();
 		return;
 	}
 	
-	var selections = document.getElementsByName("sm4");
-	var selections2 = document.getElementsByName("sm4state1");
-	var selections3 = document.getElementsByName("sm4state2");
+	var selections = document.getElementsByName('sm4');
+	var selections2 = document.getElementsByName('sm4state1');
+	var selections3 = document.getElementsByName('sm4state2');
 	var asset;
 	var assets = [];
 	var catid;
@@ -392,8 +404,8 @@ function addSiloMain4() {
 	for (var j = 0; j < selections.length; j++) {
 		if (selections[j].checked) {
 			catid = selections[j].value;
-			state = (selections2[j].checked) ? parseInt(selections2[j].value) : (selections3[j].checked) ? parseInt(selections3[j].value) : "";
-			asset = new Asset(selections[j].getAttribute("data"), 6, catid, "", state);
+			state = (selections2[j].checked) ? parseInt(selections2[j].value) : (selections3[j].checked) ? parseInt(selections3[j].value) : '';
+			asset = new Asset(selections[j].getAttribute('data'), 6, catid, '', state);
 			assets.push(asset);
 		}
 	}
@@ -402,13 +414,13 @@ function addSiloMain4() {
 }
 
 function addSiloPromo1() {
-	if (currentID <= 0) {
-		needPatch();
+	if (currentPatch < 0) {
+		noPatch();
 		return;
 	}
 	
-	var selections = document.getElementsByName("sp1");
-	var selections2 = document.getElementsByName("sp1state");
+	var selections = document.getElementsByName('sp1');
+	var selections2 = document.getElementsByName('sp1state');
 	var asset;
 	var assets = [];
 	var catid;
@@ -416,8 +428,8 @@ function addSiloPromo1() {
 	for (var j = 0; j < selections.length; j++) {
 		if (selections[j].checked) {
 			catid = selections[j].value;
-			state = (selections2[j].checked) ? parseInt(selections2[j].value) : "";
-			asset = new Asset(selections[j].getAttribute("data"), 7, catid, "", state);
+			state = (selections2[j].checked) ? parseInt(selections2[j].value) : '';
+			asset = new Asset(selections[j].getAttribute('data'), 7, catid, '', state);
 			assets.push(asset);
 		}
 	}
@@ -426,19 +438,19 @@ function addSiloPromo1() {
 }
 
 function addDrawerTicker() {
-	if (currentID <= 0) {
-		needPatch();
+	if (currentPatch < 0) {
+		noPatch();
 		return;
 	}
 	
-	var selections = document.getElementsByName("dt");
+	var selections = document.getElementsByName('dt');
 	var asset;
 	var assets = [];
 	var catid;
 	for (var j = 0; j < selections.length; j++) {
 		if (selections[j].checked) {
 			catid = selections[j].value;
-			asset = new Asset(selections[j].getAttribute("data"), 8, catid);
+			asset = new Asset(selections[j].getAttribute('data'), 8, catid);
 			assets.push(asset);
 		}
 	}
@@ -447,8 +459,8 @@ function addDrawerTicker() {
 }
 
 function addOther() {
-	if (currentID <= 0) {
-		needPatch();
+	if (currentPatch < 0) {
+		noPatch();
 		return;
 	}
 	
@@ -457,7 +469,7 @@ function addOther() {
 	var type;
 	var state;
 	
-	var selections = document.getElementsByName("other");
+	var selections = document.getElementsByName('other');
 	for (var j = 0; j < selections.length; j++) {
 		if (selections[j].checked) {
 			type = parseInt(selections[j].value);
@@ -465,31 +477,30 @@ function addOther() {
 		}
 	}
 	
-	selections = document.getElementsByName("otherstate")
+	selections = document.getElementsByName('otherstate')
 	for (j = 0; j < selections.length; j++) {
-		if (selections[j].checked) {
+		if (selections[j].checked)
 			state = parseInt(selections[j].value);
-		}
 	}
 	
 	if (name == '') {
-		alert("Missing graphic header/silo banner/nav aux name.");
+		alert('Missing graphic header/silo banner/nav aux name.');
 		form1.othername.focus();
 		return;
 	}
-	if (catid == '' || catid == "cat") {
-		alert("Missing or invalid graphic header/silo banner/nav aux cat ID.");
+	if (catid == '' || catid == 'cat') {
+		alert('Missing or invalid graphic header/silo banner/nav aux cat ID.');
 		form1.othercat.focus();
 		return;
 	}
 	
-	var asset = new Asset(name, type, catid, "", state);
+	var asset = new Asset(name, type, catid, '', state);
 	addAssets(asset);
 }
 
 function addPopTile(type) {
-	if (currentID <= 0) {
-		needPatch();
+	if (currentPatch < 0) {
+		noPatch();
 		return;
 	}
 	
@@ -497,12 +508,12 @@ function addPopTile(type) {
 	var folder = form1.poptilefname.value;
 	
 	if (name == '') {
-		alert("Missing popup/promo tile name.");
+		alert('Missing popup/promo tile name.');
 		form1.popname.focus();
 		return;
 	}
 	if (folder == '' || /\s/.test(folder)) {
-		alert("Missing or invalid popup/promo tile folder name.");
+		alert('Missing or invalid popup/promo tile folder name.');
 		form1.popfname.focus();
 		return;
 	}
@@ -518,95 +529,73 @@ function addDash(dashType) {
 	var after1 = form1.afterdash1.value;
 	var after2 = form1.afterdash2.value;
 	var date = form1.dashdate.value;
-	var datesplit = date.split("/");
-	var dash = ["Midday","Twilight"];
-	var dashfile = ["MDash", "EveningDash"];
+	var datesplit = date.split('/');
+	var dash = ['Midday','Twilight'];
+	var dashfile = ['MDash', 'EveningDash'];
 	
 	if (after1 == '') {
-			alert("Missing after dash promo 4.");
+			alert('Missing after dash promo 4.');
 			form1.afterdash1.focus();
 			return;
 	}
 	if (after2 == '') {
-			alert("Missing after dash promo 4p1.");
+			alert('Missing after dash promo 4p1.');
 			form1.afterdash2.focus();
 			return;
 	}
 	if (date == '') {
-			alert("Missing dash date.");
+			alert('Missing dash date.');
 			form1.dashdate.focus();
 			return;
 	}
 	
-	var time = "9am";
+	var time = '9am';
 	
-	preDel++;
-	patch = new Patch(dash[dashType] + " Dash (Before)", date, time, (datesplit[0] + "_" + datesplit[1] + "_15_9am_" + dashfile[dashType] + "_Before"), "Natasha");
+	patch = new Patch(dash[dashType] + ' Dash (Before)', date, time, (datesplit[0] + '_' + datesplit[1] + '_15_9am_' + dashfile[dashType] + '_Before'), 'Natasha');
 	patches.push(patch);
-	currentID = preDel;
-	asset = new Asset(dash[dashType] + " Dash (Before)", 12, "cat21000740");
+	currentPatch = patches.length - 1;
+	asset = new Asset(dash[dashType] + ' Dash (Before)', 12, 'cat21000740');
 	addAssets(asset);
 	
 	if (dashType == 1 && form1.dashextended.checked)
-		time = "3:59pm"
+		time = '3:59pm'
 	else if (dashType == 1 && !form1.dashextended.checked)
-		time = "5:59pm";
+		time = '5:59pm';
 	else
-		time = "11:29am";
+		time = '11:29am';
 	
-	preDel++;
-	patch = new Patch(dash[dashType] + " Dash (Start)", date, time, (datesplit[0] + "_" + datesplit[1] + "_15_1129am_" + dashfile[dashType] + "_Start"), "Natasha");
+	patch = new Patch(dash[dashType] + ' Dash (Start)', date, time, (datesplit[0] + '_' + datesplit[1] + '_15_1129am_' + dashfile[dashType] + '_Start'), 'Natasha');
 	patches.push(patch);
-	currentID = preDel;
-	asset = new Asset("Promo 4: "+ dash[dashType] + " Dash", 4, "cat000000/r_promo4", "", 3);
+	currentPatch = patches.length - 1;
+	asset = new Asset('Promo 4: '+ dash[dashType] + ' Dash', 4, 'cat000000/r_promo4', '', 3);
 	assets.push(asset);
-	asset = new Asset("Promo 4p1: Dash Sign-Up", 4, "cat000000/r_promo4p1", "", 3);
+	asset = new Asset('Promo 4p1: Dash Sign-Up', 4, 'cat000000/r_promo4p1', '', 3);
 	assets.push(asset);
-	asset = new Asset(dash[dashType] + " Dash (Start)", 12, "cat21000740");
+	asset = new Asset(dash[dashType] + ' Dash (Start)', 12, 'cat21000740');
 	assets.push(asset);
-	asset = new Asset(dash[dashType] + " Dash", 9, "MiddayDash/MiddayDash_popup", "", 3);
+	asset = new Asset(dash[dashType] + ' Dash', 9, 'MiddayDash/MiddayDash_popup', '', 3);
 	assets.push(asset);
 	addAssets(assets);
 	assets = [];
 	
 	if (dashType == 1)
-		time = "3:59pm"
+		time = '3:59pm'
 	else
-		time = "8:59pm";
+		time = '8:59pm';
 	
-	preDel++;
-	patch = new Patch(dash[dashType] + " Dash (Over)", date, "1:29pm", (datesplit[0] + "_" + datesplit[1] + "_15_129pm_" + dashfile[dashType] + "_Over"), "Natasha");
+	patch = new Patch(dash[dashType] + ' Dash (Over)', date, '1:29pm', (datesplit[0] + '_' + datesplit[1] + '_15_129pm_' + dashfile[dashType] + '_Over'), 'Natasha');
 	patches.push(patch);
-	currentID = preDel;
-	asset = new Asset(("Promo 4: " + after1), 4, "cat000000/r_promo4", "", 4);
+	currentPatch = patches.length - 1;
+	asset = new Asset(('Promo 4: ' + after1), 4, 'cat000000/r_promo4', '', 4);
 	assets.push(asset);
-	asset = new Asset(("Promo 4p1: " + after2), 4, "cat000000/r_promo4p1", "", 4);
+	asset = new Asset(('Promo 4p1: ' + after2), 4, 'cat000000/r_promo4p1', '', 4);
 	assets.push(asset);
-	asset = new Asset(dash[dashType] + " Dash (Over)", 12, "cat21000740", "", 3);
+	asset = new Asset(dash[dashType] + ' Dash (Over)', 12, 'cat21000740', '', 3);
 	assets.push(asset);
 	addAssets(assets);
 	
-	console.log("Current ID: " + currentID);
+	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
 	console.log(patches);
-}
-
-function selectText(containerid) {
-	var container = document.getElementById(containerid);
-	var range;
-	
-	if (container.innerHTML == "")
-		return;
-	
-	if (document.body.createTextRange) {
-		range = document.body.createTextRange();
-		range.moveToElementText(container);
-		range.select();
-	} else if (window.getSelection) {	
-		range = document.createRange();
-		range.selectNodeContents(container);
-		window.getSelection().removeAllRanges();
-		window.getSelection().addRange(range);
-	}
 }
 
 function buildOutput(build) {
@@ -614,13 +603,13 @@ function buildOutput(build) {
 	// build = 1 -> build schedule
 	
 	if (patches.length < 1) {
-		document.getElementById("emailbod").innerHTML = '';
+		document.getElementById('emailbod').innerHTML = '';
 		return;
 	}
 	
-	localStorage.setItem("previous-json", JSON.stringify(patches));
+	localStorage.setItem('previous-json', JSON.stringify(patches));
 	
-	var prehtml ="";
+	var prehtml ='';
 	var html = '<div id="patchlist">';
 	var assets = [];
 	var href = ['wn.ref1.nmg','www.neimanmarcus.com','wn.test1.nmg'];
@@ -629,29 +618,29 @@ function buildOutput(build) {
 	
 	
 	if (build == 0) {
-		temp = (form1.approvaltime.value == "") ? "ASAP" : (form1.approvaltime.value + form1.approvalperiod.value);
-		temp = "<p>The " + patches[0].date + " (" + patches[0].time + ") Patches are Ready for Approvals by " + temp + " Today</p>";
+		temp = (form1.approvaltime.value == '') ? 'ASAP' : (form1.approvaltime.value + form1.approvalperiod.value);
+		temp = '<p>The ' + patches[0].date + ' (' + patches[0].time + ') Patches are Ready for Approvals by ' + temp + ' Today</p>';
 	}
 	else if (build == 1 && today.getDay() == 5)
 		temp = "<p>(NMO) This Weekend's Patches Are Ready to Schedule</p>";
 	else if (build == 1)
 		temp = "<p>(NMO) Tonight's &amp; Tomorrow's Patches Are Ready to Schedule</p>";
 	else
-		temp = "";
+		temp = '';
 	document.getElementById('emailsub').innerHTML = temp;
 	
 	
 	if (build == 0) {
 		prehtml += '<p><strong>The <span style="color: red;">' + patches[0].date + ' (' + patches[0].time + ')</span> Patches are posted online at: <a href="http://' + href[build] + '/index.jsp">http://' + href[build] + '/index.jsp</a><br />' +
 			'Please proof it and <span style="color: red;">respond</span> with <span style="color: red;">changes</span> or <span style="color: red;">your approval by ';
-		prehtml += (form1.approvaltime.value == "") ? "ASAP</strong></span></p>" : (form1.approvaltime.value + form1.approvalperiod.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate() + '</strong></span></p>');
+		prehtml += (form1.approvaltime.value == '') ? 'ASAP</strong></span></p>' : (form1.approvaltime.value + form1.approvalperiod.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate() + '</strong></span></p>');
 		prehtml += '<p>If you are getting the "category not found page" please do one of the following to check your link:</p>' +
 			'<ol><li>Replace the "wnref1" in the url with www.neimanmarcus.com" or</li>' +
 			'<li>Do step 1 again and then add "&cacheCheckSeconds=1" at the end of the url</li>' +
 			'<li>Or move item from Temp Folder.</li></ol>';
 	}
 	else {
-		prehtml += "Producers,<br />" +
+		prehtml += 'Producers,<br />' +
 			"(NMO) Tomorrow's Patches Are Ready to Schedule!<br />";
 	}
 	
@@ -660,8 +649,7 @@ function buildOutput(build) {
 	for (var i = 0; i < patches.length; i++) {
 		assets = patches[i].assets;
 		prehtml += patches[i].name + ': ' + patches[i].merchant + '<br />';
-		html += '<div patchid="' + patches[i].id + '"' + ((patches[i].id == currentID) ? ' class="selected"' : '') + '>';
-		html += spacer + '<p style="color: red;"><strong>' + patches[i].date + ' (' + patches[i].time + ') ' + patches[i].name + '</strong></p>';
+		html += '<div patch="' + i + '">' + spacer + '<p style="color: red;"><strong>' + patches[i].date + ' (' + patches[i].time + ') ' + patches[i].name + '</strong></p>';
 		
 		if (build == 1)
 			html += '<p style="color: gray;"><strong>Folder: ' + patches[i].folder + '</strong></p>';
@@ -676,11 +664,11 @@ function buildOutput(build) {
 					}
 					
 					temp = 'http://' + href[build] + '/category/cat000000/r_header_promo.html';
-					html += 'Header Promo: ' + assets[j].name + '<br />' +
+					html += '<span asset="' + j + '">Header Promo: ' + assets[j].name + '<br />' +
 							'<a href="' + temp + '">' + temp + '</a><br />';
 					temp = 'http://' + href[build] + '/category/cat000000/r_mobile_header_promo.html';
 					html += 'Mobile Headerpromo: ' + assets[j].name + '<br />' +
-							'<a href="' + temp + '">' + temp + '</a><br />';
+							'<a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
@@ -690,7 +678,7 @@ function buildOutput(build) {
 							'<span style="color: blue;">Click above to view entire homepage &amp; headerpromo</span><br />';
 					}
 					
-					html += 'Ticker: ' + assets[j].name + '<br />';
+					html += '<span asset="' + j + '">Ticker: ' + assets[j].name + '</span><br />';
 					
 					break;
 					
@@ -700,10 +688,10 @@ function buildOutput(build) {
 							'<span style="color: blue;">Click above to view entire homepage &amp; headerpromo</span><br />';
 					}
 					
-					if (assets[j].icid != "")
-						html += assets[j].name + ' <span style="color: lightseagreen;">icid=' + assets[j].icid + '</span><br />';
+					if (assets[j].icid != '')
+						html += '<span asset="' + j + '">' + assets[j].name + ' <span style="color: lightseagreen;">icid=' + assets[j].icid + '</span></span><br />';
 					else
-						html += assets[j].name + '<br />';
+						html += '<span asset="' + j + '">' + assets[j].name + '</span><br />';
 					
 					break;
 					
@@ -713,103 +701,91 @@ function buildOutput(build) {
 							'<span style="color: blue;">Click above to view entire homepage &amp; headerpromo</span><br />';
 					}
 					
-					
-					
 					if (assets[j].state == 4 && build == 0) {
 						temp = 'http://' + href[build + 2] + '/category/' + assets[j].path + '.html';
-						html += assets[j].name + ' <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ' <a href="' + temp + '">' + temp + '</a></span><br />';
 					}
 					else if (assets[j].state == 3 || assets[j].state == 4) {
 						temp = 'http://' + href[build] + '/category/' + assets[j].path + '.html';
-						html += assets[j].name + ' <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ' <a href="' + temp + '">' + temp + '</a></span><br />';
 					}
 					
-					else if (assets[j].icid != "")
-						html += assets[j].name + ' <span style="color: lightseagreen;">icid=' + assets[j].icid + '</span><br />';
+					else if (assets[j].icid != '')
+						html += '<span asset="' + j + '">' + assets[j].name + ' <span style="color: lightseagreen;">icid=' + assets[j].icid + '</span></span><br />';
 					else
-						html += assets[j].name + '<br />';
+						html += '<span asset="' + j + '">' + assets[j].name + '</span><br />';
 					
 					break;
 					
 				case 5:  // Designer Index
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Designer Index:</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 5) {
+						if (assets[j-1].type != 5)
 							html += '</p><p><strong>Designer Index:</strong><br />';
-						}
 					}
 					
-					if (assets[j].path == "cat45050736")
+					if (assets[j].path == 'cat45050736')
 						temp = 'http://' + href[build] + '/category/' + assets[j].path + '/r_main_drawer_promo.html';
 					else
 						temp = 'http://' + href[build] + '/category/' + assets[j].path + '/r_designer_promo.html';
-					html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 6:  // Silo Main 4
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Silo Main 4:</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 6) {
+						if (assets[j-1].type != 6)
 							html += '</p><p><strong>Silo Main 4:</strong><br />';
-						}
 					}
 					
 					temp = 'http://' + href[build] + '/category/' + assets[j].path + '/r_main.html';
 					if (assets[j].state == 1) // Turn On
-						html += assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
 					else if (assets[j].state == 2) // Turn Off
-						html += assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + '<br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + '</span><br />';
 					else
-						html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 7:  // Silo Promo 1
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Silo Promo 1:</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 7) {
+						if (assets[j-1].type != 7)
 							html += '</p><p><strong>Silo Promo 1:</strong><br />';
-						}
 					}
 					
 					temp = 'http://' + href[build] + '/category.jsp?itemId=' + assets[j].path + '&parentId=&siloId=' + assets[j].path;
 					if (assets[j].state == 3) // Removed
-						html += assets[j].name + ': <span style="color: green;">(Removed)</span> <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
 					else
-						html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 8:  // Drawer Tickers
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Drawer Tickers:</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 8) {
+						if (assets[j-1].type != 8)
 							html += '</p><p><strong>Drawer Tickers:</strong><br />';
-						}
 					}
 					
 					temp = 'http://' + href[build] + '/category/' + assets[j].path + '/r_main_drawer_promo.html';
-					html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 9:  // Popups
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Popups:</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 9) {
+						if (assets[j-1].type != 9)
 							html += '</p><p><strong>Popups:</strong><br />';
-						}
 					}
 					
 					if (assets[j].state == 3)
@@ -817,48 +793,42 @@ function buildOutput(build) {
 					else
 						temp = 'http://' + href[build] + '/category/popup/' + assets[j].path + '/' + assets[j].path + '.html';
 					
-					html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 10:  // Promo Tiles
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Promo Tiles:</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 10) {
+						if (assets[j-1].type != 10)
 							html += '</p><p><strong>Promo Tiles:</strong><br />';
-						}
 					}
 					
 					temp = 'http://' + href[build] + '/category/promotiles/' + assets[j].path + '.html';
-					html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 11:  // Jump Pages (F0)
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Jump Pages (F0):</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 11) {
+						if (assets[j-1].type != 11)
 							html += '</p><p><strong>Jump Pages (F0):</strong><br />';
-						}
 					}
 					
 					temp = 'http://' + href[build] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
-					html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 12:  // Graphic Headers
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Graphic Headers:</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 12) {
+						if (assets[j-1].type != 12)
 							html += '</p><p><strong>Graphic Headers:</strong><br />';
-						}
 					}
 					
 					if (assets[j].state == 3 && build == 0)
@@ -867,72 +837,66 @@ function buildOutput(build) {
 						temp = 'http://' + href[build] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					
 					if (assets[j].state == 1) // Turn On
-						html += assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
 					else if (assets[j].state == 2 && build == 0) // Turn Off
-						html += assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + '<br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + '</span><br />';
 					else if (assets[j].state == 2 && build == 1) // Turn Off
-						html += assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br />';
 					else
-						html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 13:  // Silo Banners
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Silo Banners:</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 13) {
+						if (assets[j-1].type != 13)
 							html += '</p><p><strong>Silo Banners:</strong><br />';
-						}
 					}
 					
 					temp = 'http://' + href[build] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					if (assets[j].state == 1) // Turn On
-						html += assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
 					else if (assets[j].state == 2 && build == 0) // Turn Off
-						html += assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + '<br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + '</span><br />';
 					else if (assets[j].state == 2 && build == 1) // Turn Off
-						html += assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br />';
 					else
-						html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 14:  // Nav Aux
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Nav Aux:</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 14) {
+						if (assets[j-1].type != 14)
 							html += '</p><p><strong>Nav Aux:</strong><br />';
-						}
 					}
 					
 					temp = 'http://' + href[build] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					if (assets[j].state == 1) // Turn On
-						html += assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
 					else if (assets[j].state == 2 && build == 0) // Turn Off
-						html += assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + '<br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + '</span><br />';
 					else if (assets[j].state == 2 && build == 1) // Turn Off
-						html += assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br />';
 					else
-						html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 15:  // Videos
-					if (j == 0) {
+					if (j == 0)
 						html += '<p><strong>Videos:</strong><br />';
-					}
 					else {
-						if (assets[j-1].type != 15) {
+						if (assets[j-1].type != 15)
 							html += '</p><p><strong>Videos:</strong><br />';
-						}
 					}
 					
 					temp = 'http://' + href[build] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
-					html += assets[j].name + ': <a href="' + temp + '">' + temp + '</a><br />';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
@@ -952,18 +916,17 @@ function buildOutput(build) {
 		'<span style="color: green;">GREEN: Merchant Action</span> | <span style="color: purple;">PURPLE: Creative Contact</span> | <span style="color: orange;">ORANGE: Production Action</span> |<br />' +
 		'<span style="color: red;">RED: Patch Description</span> | <span style="color: gray;">GRAY: Mentos Folder Name</span> | <span style="color: magenta;">PINK: Homepage Scrolling icid tag</span> | <span style="color: blue;">BLUE: Category Link</span></p>' + spacer;
 	
-	document.getElementById("emailbod").innerHTML = prehtml + html;
+	document.getElementById('emailbod').innerHTML = prehtml + html;
 	
-	$("#patchlist").on('mousedown', 'div', function() {
-		$(this).addClass("selected").siblings().removeClass('selected');
-		currentID = parseInt($(this).attr("patchid"));
-		console.log("Current ID: " + currentID);
-	}).sortable({
-		placeholder: "sortable-placeholder",
+	$('#patchlist div[patch=' + currentPatch + ']').addClass('selected').find('span[asset=' + currentAsset + ']').addClass('selected');
+	$('#patchlist a').attr('target', '_blank');
+	$('#patchlist').sortable({
+		placeholder: 'sortable-placeholder',
+		cursor: 'move',
 		forcePlaceholderSize: true,
 		update: patchMove,
 		create: function(){
 			$(this).height($(this).height());
 		}
-	}).disableSelection();
+	});
 }
