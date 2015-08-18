@@ -5,6 +5,7 @@ input[type=button] {
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border: 1px groove #C2C2C2;
+	margin: 5px 5px 0 0;
 }
 
 input[type=button]:hover {
@@ -108,4 +109,24 @@ span[asset].selected {
 
 .sortable-placeholder {
 	border: 1px dashed grey !important;
+}
+
+.ui-widget-overlay
+{
+	z-index: 0;
+}
+
+#combinepop label,
+#editpop label {
+	display: block;
+}
+
+#combinepop input,
+#editpop input {
+	width: 97%;
+}
+
+.ui-tooltip {
+	color: red;
+	border-color: red;
 }
