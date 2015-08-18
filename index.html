@@ -12,6 +12,38 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
+	<div id="combinepop" title="Combining Patches">
+		<p>The following patches will be combined:<br />
+		<strong><span id="patchnames" patch1="" patch2=""></span></strong></p>
+		<form method="post">
+			<label>New Name:<br />
+			<input type="text" value="" id="combinedname" /></label>
+			<label>New Folder Name:<br />
+			<input type="text" value="" id="combinedfolder" /></label>
+			<label>Merchants:<br />
+			<input type="text" value="" id="combinedmerchants" /></label>
+		</form>
+	</div>
+	
+	<div id="editpop" title="Edit Patch">
+		<form method="post">
+			<label>Name:<br />
+			<input type="text" value="" id="editname" /></label>
+			<table>
+				<tr>
+					<td><label>Date:<br />
+					<input type="text" value="" id="editdate" /></label></td>
+					<td><label>Time:<br />
+					<input type="text" maxlength="7" value="" id="edittime" /></label></td>
+				</tr>
+			</table>
+			<label>Folder Name:<br />
+			<input type="text" value="" id="editfolder" /></label>
+			<label>Merchant:<br />
+			<input type="text" value="" id="editmerchant" /></label>
+		</form>
+	</div>
+	
 	<div id="left">
 		<h2 style="display: inline-block; margin-top: 0;">Subject</h2>
 		<input type="button" value="Select All" onClick="selectText('emailsub')" />
@@ -33,32 +65,26 @@
 					<option value="Crystal 972.824.6327">Crystal</option>
 				</select>
 			</label><br />
-			<label>Approval By: <input type="text" maxlength="5" size="3" id="approvaltime" /></label>
-			<select id="approvalperiod">
-				<option value="am">am</option>
-				<option value="pm">pm</option>
-			</select><br />
-			<input type="button" onClick="removeAsset()" value="Remove Asset" />
-			<input type="button" onClick="removePatch()" value="Remove Patch" /><br />
-			<input type="button" onClick="exportJSON()" value="Export" /><br />
-			<input type="file" id="FILE" accept=".json" /><input type="button" onClick="loadFile()" value="Import" /><br />
-			<input type="button" onClick="buildOutput(1)" value="Generate EOD" />
-			<input type="button" onClick="clearForm()" value="Clear Fields" />
+			<label>Approval By: <input type="text" maxlength="5" size="5" id="approvaltime" /></label> <em>(ASAP will be used if blank)</em><br />
+			<input type="button" id="removeasset" onClick="removeAsset()" value="Remove Asset" title="No assets to remove" />
+			<input type="button" id="removepatch" onClick="removePatch()" value="Remove Patch" title="No patches to remove" />
+			<input type="button" id="checkpatches" onClick="checkPatches()" value="Combine Patches" title="No patches to combine" /><br />
 			<input type="button" onClick="loadPrev()" value="Load Previous" />
+			<input type="button" onClick="buildOutput(1)" value="Generate EOD" />
+			<input type="button" onClick="exportJSON()" value="Export" /><br />
+			<input type="file" id="file" accept=".json" title="Missing input file" />
+			<input type="button" id="loadfile" onClick="loadFile()" value="Import" title="Empty or invalid JSON file" /><br />
+			<input type="button" onClick="clearForm()" value="Clear Fields" style="margin-bottom: 10px;" />
 			
 			<div id="accordion">
 				<h3>Add Patch</h3>
 				<div>
-					<label>Name: <input type="text" id="patchname" /></label><br />
-					<label>Date: <input type="text" size="3" id="patchdate" class="datepicker" /></label><br />
-					<label>Time: <input type="text" maxlength="5" size="3" id="patchtime" /></label>
-					<select id="patchperiod">
-						<option value="am">am</option>
-						<option value="pm">pm</option>
-					</select><br />
-					<label>Folder Name: <input type="text" id="patchfolder" /></label><br />
-					<label>Merchant: <input type="text" id="merchant" /></label><br />
-					<input type="button" onClick="addPatch()" value="Add Patch" />
+					<label>Name: <input type="text" id="patchname" title="Missing patch name" /></label><br />
+					<label>Date: <input type="text" size="5" id="patchdate" title="Missing patch date" /></label>
+					<label>Time: <input type="text" maxlength="7" size="7" id="patchtime" title="Missing patch time" /></label><br />
+					<label>Folder Name: <input type="text" id="patchfolder" title="Missing or invalid patch folder name" /></label><br />
+					<label>Merchant: <input type="text" id="patchmerchant" title="Missing merchant name" /></label><br />
+					<input type="button" id="addpatch" onClick="addPatch()" value="Add Patch" title="Need at least 1 patch before adding any assets" />
 				</div>
 				
 				<h3>Homepage</h3>
@@ -137,7 +163,7 @@
 							<td><label>icid=<input type="text" name="picid" /></label></td>
 						</tr>
 					</table>
-					<input type="button" onClick="addHomepage()" value="Add Homepage" />
+					<input type="button" id="addhomepage" onClick="addHomepage()" value="Add Homepage" title="No assets added for homepage" />
 				</div>
 				
 				<h3>Designer Index</h3>
@@ -290,8 +316,8 @@
 				
 				<h3>Popups &amp; Promo Tiles</h3>
 				<div>
-					<label>Name: <input type="text" id="poptilename" /></label><br />
-					<label>Folder/File Name: <input type="text" id="poptilefname" /></label><br />
+					<label>Name: <input type="text" id="poptilename" title="Missing popup/promo tile name" /></label><br />
+					<label>Folder/File Name: <input type="text" id="poptilefname" title="Missing or invalid popup/promo tile folder name" /></label><br />
 					<input type="button" onClick="addPopTile(9)" value="Add Popup" />
 					<input type="button" onClick="addPopTile(10)" value="Add Promo Tile" />
 				</div>
@@ -304,9 +330,10 @@
 					<label><input type="radio" name="other" value="13" />Silo Banner</label><br />
 					<label><input type="radio" name="other" value="14" />Nav Aux</label><br />
 					<label><input type="radio" name="other" value="15" />Video</label><br />
+					<label><input type="radio" name="other" value="16" />InSite</label><br />
 					
-					<label>Name: <input type="text" id="othername" /></label>
-					<label>Cat ID: <input type="text" id="othercat" value="cat"/></label><br />
+					<label>Name: <input type="text" id="othername" title="Missing name" /></label>
+					<label>Cat ID: <input type="text" id="othercat" title="Missing or invalid cat ID" value="cat" /></label><br />
 					<label><input type="checkbox" name="otherstate" value="1" />On</label>
 					<label><input type="checkbox" name="otherstate" value="2" />Off</label><br />
 					<input type="button" onClick="addOther();" value="Add" />
@@ -314,9 +341,9 @@
 				
 				<h3>Dashes</h3>
 				<div>
-					<label>Dash Date: <input type="text" id="dashdate" size="3" class="datepicker" /></label><br />
-					<label>After Dash Promo 4: <input type="text" id="afterdash1" /></label><label><input type="checkbox" id="dash1" value="MasterPass"/>Default</label><br />
-					<label>After Dash Promo 4p1: <input type="text" id="afterdash2" /></label><label><input type="checkbox" id="dash2" value="MasterPass"/>Default</label><br />
+					<label>Dash Date: <input type="text" id="dashdate" size="5" title="Missing dash date" /></label><br />
+					<label>After Dash Promo 4: <input type="text" id="afterdash1" title="Missing after dash promo 4" /></label><label><input type="checkbox" id="dash1" value="MasterPass"/>Default</label><br />
+					<label>After Dash Promo 4p1: <input type="text" id="afterdash2" title="Missing after dash promo 4p1" /></label><label><input type="checkbox" id="dash2" value="MasterPass"/>Default</label><br />
 					<label><input type="checkbox" id="dashextended" />Extended</label><br />
 					<input type="button" onClick="addDash(0);" value="Add Midday Dash" />
 					<input type="button" onClick="addDash(1);" value="Add Twilight Dash" />
