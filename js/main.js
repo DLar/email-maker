@@ -27,7 +27,7 @@ $(document).ready(function() {
 			$('#afterdash2').prop('disabled', false).val('');
 	});
 	
-	$('.datepicker').datepicker({
+	$('#patchdate, #dashdate, #editdate').datepicker({
 		dateFormat: 'm/d'
 	}).datepicker('setDate', today);
 	
@@ -37,6 +37,71 @@ $(document).ready(function() {
 	
 	$('#accordion').accordion({
 		heightStyle: 'content'
+	});
+	
+	$('input[title]').tooltip({
+		position: { my: 'left+5', at: 'right' },
+		disabled: true,
+		open: function() {
+			var that = this;
+			setTimeout(function() {
+				$(that).tooltip('disable');
+			}, 2000)}
+	});
+	
+	$('#combinepop').dialog({
+		autoOpen: false,
+		resizable: false,
+		draggable: false,
+		modal: true,
+		minWidth: 300,
+		buttons: {
+			Combine: function() {
+				$(this).dialog('close');
+		
+				var patch1 = parseInt(patchnames.getAttribute('patch1'));
+				var patch2 = parseInt(patchnames.getAttribute('patch2'));
+				
+				patches[patch1].name = combinedname.value;
+				patches[patch1].folder = combinedfolder.value;
+				patches[patch1].merchant = combinedmerchants.value;
+				
+				currentPatch = patch1;
+				currentAsset = -1;
+				addAssets(patches[patch2].assets);
+				patches.splice(patch2, 1);
+				
+				buildOutput(0);
+				checkPatches();
+			},
+			Cancel: function() {
+				$(this).dialog('close');
+			}
+		}
+	});
+	
+	$('#editpop').dialog({
+		autoOpen: false,
+		resizable: false,
+		draggable: false,
+		modal: true,
+		minWidth: 300,
+		buttons: {
+			Save: function() {
+				$(this).dialog('close');
+				
+				patches[currentPatch].name = editname.value;
+				patches[currentPatch].date = editdate.value;
+				patches[currentPatch].time = edittime.value;
+				patches[currentPatch].folder = editfolder.value;
+				patches[currentPatch].merchant = editmerchant.value;
+				
+				buildOutput(0);
+			},
+			Cancel: function() {
+				$(this).dialog('close');
+			}
+		}
 	});
 	
 	//Bubble down from parent element since assets aren't available on document ready
@@ -56,6 +121,15 @@ $(document).ready(function() {
 		currentPatch = parseInt($(this).parents('div').attr('patch'));
 		currentAsset = parseInt($(this).attr('asset'));
 		console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
+	});
+	
+	$('#emailbod').on('dblclick', '#patchlist div[patch]', function() {
+		editname.value = patches[currentPatch].name;
+		editdate.value = patches[currentPatch].date;
+		edittime.value = patches[currentPatch].time;
+		editfolder.value = patches[currentPatch].folder;
+		editmerchant.value = patches[currentPatch].merchant;
+		$('#editpop').dialog('open');
 	});
 });
 
@@ -83,6 +157,7 @@ Asset Types:
 13 = Silo Banner
 14 = Nav Aux
 15 = Video
+16 = InSite
 
 States:
 1 = Turn On
@@ -111,35 +186,30 @@ function Asset(name, type, path, icid, state) {
 
 function addPatch() {
 	
-	var name = form1.patchname.value;
-	var date = form1.patchdate.value;
-	var time = form1.patchtime.value + form1.patchperiod.value;
-	var folder = form1.patchfolder.value;
-	var merchant = form1.merchant.value;
+	var name = patchname.value;
+	var date = patchdate.value;
+	var time = patchtime.value;
+	var folder = patchfolder.value;
+	var merchant = patchmerchant.value;
 	
 	if (name == '') {
-		alert('Missing patch name.');
-		form1.patchname.focus();
+		$('#patchname').tooltip('enable').focus();
 		return;
 	}
 	if (date == '') {
-		alert('Missing patch date.');
-		form1.patchdate.focus();
+		$('#patchdate').tooltip('enable').focus();
 		return;
 	}
-	if (time == 'am' || time == 'pm') {
-		alert('Missing patch time.');
-		form1.patchtime.focus();
+	if (time == '') {
+		$('#patchtime').tooltip('enable').focus();
 		return;
 	}
-	if (folder == '' || /\s/.test(folder)) {
-		alert('Missing or invalid patch folder name.');
-		form1.patchfolder.focus();
+	if (folder == '' || /\W/.test(folder)) {
+		$('#patchfolder').tooltip('enable').focus();
 		return;
 	}
 	if (merchant == '') {
-		alert('Missing merchant name.');
-		form1.merchant.focus();
+		$('#patchmerchant').tooltip('enable').focus();
 		return;
 	}
 	
@@ -148,13 +218,11 @@ function addPatch() {
 	currentPatch = patches.length - 1;
 	
 	buildOutput(0);
-	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
-	console.log(patches);
 }
 
 function removePatch() {
 	if (currentPatch < 0) {
-		alert('No more patches to remove.');
+		$('#removepatch').tooltip('enable').focus();
 		return;
 	}
 	
@@ -164,9 +232,6 @@ function removePatch() {
 		currentPatch--;
 	
 	buildOutput(0);
-	
-	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
-	console.log(patches);
 }
 
 function patchMove() {
@@ -181,28 +246,22 @@ function patchMove() {
 	
 	patches = temp;
 	buildOutput(0);
-	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
-	console.log(patches);
 }
 
 function noPatch() {
-	alert('Must have at least 1 patch before adding any assets.');
 	$('#accordion').accordion({ active: 0 });
-	form1.patchname.focus();
+	$('#addpatch').tooltip('enable').tooltip('open');
+	patchname.focus();
 }
 
 function addAssets(assets) {
 	patches[currentPatch].assets = patches[currentPatch].assets.concat(assets);
 	patches[currentPatch].assets = patches[currentPatch].assets.sort(sortAssets);
-	console.log(patches[currentPatch].assets);
-
-	buildOutput(0);
-	console.log(patches);
 }
 
 function removeAsset() {
 	if (currentAsset < 0) {
-		alert('No more assets to remove.');
+		$('#removeasset').tooltip('enable').focus();
 		return;
 	}
 	
@@ -212,8 +271,6 @@ function removeAsset() {
 		currentAsset--;
 	
 	buildOutput(0);
-	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
-	console.log(patches[currentPatch].assets);
 }
 
 function sortAssets(a,b) {
@@ -231,13 +288,47 @@ function sortAssets(a,b) {
 	}
 }
 
+function checkPatches() {
+	
+	if (patches.length < 2) {
+		$('#checkpatches').tooltip('enable').focus();
+		return;
+	}
+	
+	var datesplit;
+	
+	for (var i = 0; i < patches.length; i++) {
+		for (var j = i + 1; j < patches.length; j++) {
+			if (patches[i].date == patches[j].date && patches[i].time == patches[j].time) {
+				patchnames.innerHTML = patches[i].name + '<br />' + patches[j].name;
+				patchnames.setAttribute('patch1', i);
+				patchnames.setAttribute('patch2', j);
+				combinedname.value = patches[i].name + ', ' + patches[j].name;
+				combinedmerchants.value = patches[i].merchant + ', ' + patches[j].merchant;
+				
+				datesplit = patches[i].date.split('/');
+				if (datesplit[0].length < 2)
+					datesplit[0] = '0' + datesplit[0];
+				if (datesplit[1].length < 2)
+					datesplit[1] = '0' + datesplit[1];
+				combinedfolder.value = (datesplit[0] + '_' + datesplit[1] + '_' + (today.getYear() % 100) + '_' + patches[i].time + '_' + patches[i].name + '_' + patches[j].name).replace(/\W/g, '');
+				
+				$('#combinepop').dialog('open');
+				return;
+			}
+		}
+	}
+	
+	$('#checkpatches').tooltip('enable').focus();
+}
+
 function loadPrev() {
 	var json = localStorage.getItem('previous-json');
 	importJSON(json);
 }
 
 function loadFile() {
-	var file = form1.FILE.files[0];
+	var file = form1.file.files[0];
 	if (file) {
 		var reader = new FileReader();
 		reader.onload = function() {
@@ -246,32 +337,30 @@ function loadFile() {
 		reader.readAsText(file);
 	}
 	else {
-		alert('Missing input file.');
+		$('#file').tooltip('enable').focus();
 	}
 }
 
 function importJSON(data) {
-	var json = JSON.parse(data);
-	
-	if (json.length < 1) {
-		alert('Empty or corrupt JSON file.');
+	try {
+		var json = JSON.parse(data);
+	}
+	catch(e) {
+		$('#loadfile').tooltip('enable').focus();
+		console.log(e);
 		return;
 	}
 	
 	currentPatch = patches.length;
-	
 	patches = patches.concat(json);
 	buildOutput(0);
-	
-	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
-	console.log(patches);
 }
 
 function exportJSON() {
 	var json = JSON.stringify(patches, null, '\t');
 	var blob = new Blob([json], {type: 'text/plain;charset=utf-8'});
 	today = new Date();
-	var name = (today.getMonth() + 1) + '_' + today.getDate() + '_' + today.getFullYear().toString().substr(2,2) + '_';
+	var name = (today.getMonth() + 1) + '_' + today.getDate() + '_' + (today.getYear() % 100) + '_';
 	var hours = today.getHours();
 	var period = 'am';
 	if (hours >= 12) {
@@ -287,7 +376,7 @@ function exportJSON() {
 
 function clearForm() {
 	form1.reset();
-	$('.datepicker').datepicker('setDate', today);
+	$('#patchdate, #dashdate').datepicker('setDate', today);
 	$('#hpromo1, #hpromo2, #afterdash1, #afterdash2').prop('disabled', false);
 }
 
@@ -361,10 +450,12 @@ function addHomepage() {
 		}
 	}
 	
-	if (assets.length > 0)
+	if (assets.length > 0) {
 		addAssets(assets);
+		buildOutput(0);
+	}
 	else
-		alert('No assets added for homepage.');
+		$('#addhomepage').tooltip('enable').focus();
 }
 
 function addDesignerIndex() {
@@ -386,6 +477,7 @@ function addDesignerIndex() {
 	}
 	
 	addAssets(assets);
+	buildOutput(0);
 }
 
 function addSiloMain4() {
@@ -411,6 +503,7 @@ function addSiloMain4() {
 	}
 	
 	addAssets(assets);
+	buildOutput(0);
 }
 
 function addSiloPromo1() {
@@ -435,6 +528,7 @@ function addSiloPromo1() {
 	}
 	
 	addAssets(assets);
+	buildOutput(0);
 }
 
 function addDrawerTicker() {
@@ -456,6 +550,7 @@ function addDrawerTicker() {
 	}
 	
 	addAssets(assets);
+	buildOutput(0);
 }
 
 function addOther() {
@@ -464,8 +559,8 @@ function addOther() {
 		return;
 	}
 	
-	var name = form1.othername.value;
-	var catid = form1.othercat.value;
+	var name = othername.value;
+	var catid = othercat.value;
 	var type;
 	var state;
 	
@@ -484,18 +579,17 @@ function addOther() {
 	}
 	
 	if (name == '') {
-		alert('Missing graphic header/silo banner/nav aux name.');
-		form1.othername.focus();
+		$('#othername').tooltip('enable').focus();
 		return;
 	}
 	if (catid == '' || catid == 'cat') {
-		alert('Missing or invalid graphic header/silo banner/nav aux cat ID.');
-		form1.othercat.focus();
+		$('#othercat').tooltip('enable').focus();
 		return;
 	}
 	
 	var asset = new Asset(name, type, catid, '', state);
 	addAssets(asset);
+	buildOutput(0);
 }
 
 function addPopTile(type) {
@@ -504,69 +598,65 @@ function addPopTile(type) {
 		return;
 	}
 	
-	var name = form1.poptilename.value;
-	var folder = form1.poptilefname.value;
+	var name = poptilename.value;
+	var folder = poptilefname.value;
 	
 	if (name == '') {
-		alert('Missing popup/promo tile name.');
-		form1.popname.focus();
+		$('#poptilename').tooltip('enable').focus();
 		return;
 	}
-	if (folder == '' || /\s/.test(folder)) {
-		alert('Missing or invalid popup/promo tile folder name.');
-		form1.popfname.focus();
+	if (folder == '' || /\W/.test(folder)) {
+		$('#poptilefname').tooltip('enable').focus();
 		return;
 	}
 	
 	var asset = new Asset(name, type, folder);
 	addAssets(asset);
+	buildOutput(0);
 }
 
 function addDash(dashType) {
 	var patch;
 	var asset;
 	var assets = [];
-	var after1 = form1.afterdash1.value;
-	var after2 = form1.afterdash2.value;
-	var date = form1.dashdate.value;
+	var after1 = afterdash1.value;
+	var after2 = afterdash2.value;
+	var date = dashdate.value;
 	var datesplit = date.split('/');
 	var dash = ['Midday','Twilight'];
 	var dashfile = ['MDash', 'EveningDash'];
 	
+	if (date == '') {
+		$('#dashdate').tooltip('enable').focus();
+		return;
+	}
 	if (after1 == '') {
-			alert('Missing after dash promo 4.');
-			form1.afterdash1.focus();
-			return;
+		$('#afterdash1').tooltip('enable').focus();
+		return;
 	}
 	if (after2 == '') {
-			alert('Missing after dash promo 4p1.');
-			form1.afterdash2.focus();
-			return;
-	}
-	if (date == '') {
-			alert('Missing dash date.');
-			form1.dashdate.focus();
-			return;
+		$('#afterdash2').tooltip('enable').focus();
+		return;
 	}
 	
 	var time = '9am';
 	
-	patch = new Patch(dash[dashType] + ' Dash (Before)', date, time, (datesplit[0] + '_' + datesplit[1] + '_15_9am_' + dashfile[dashType] + '_Before'), 'Natasha');
+	patch = new Patch(dash[dashType] + ' Dash (Before)', date, time, (datesplit[0] + '_' + datesplit[1] + '_' + (today.getYear() % 100) + '_9am_' + dashfile[dashType] + '_Before'), 'Natasha');
 	patches.push(patch);
 	currentPatch = patches.length - 1;
 	asset = new Asset(dash[dashType] + ' Dash (Before)', 12, 'cat21000740');
 	addAssets(asset);
 	
-	if (dashType == 1 && form1.dashextended.checked)
+	if (dashType == 1 && dashextended.checked)
 		time = '3:59pm'
-	else if (dashType == 1 && !form1.dashextended.checked)
+	else if (dashType == 1 && !dashextended.checked)
 		time = '5:59pm';
 	else
 		time = '11:29am';
 	
-	patch = new Patch(dash[dashType] + ' Dash (Start)', date, time, (datesplit[0] + '_' + datesplit[1] + '_15_1129am_' + dashfile[dashType] + '_Start'), 'Natasha');
+	patch = new Patch(dash[dashType] + ' Dash (Start)', date, time, (datesplit[0] + '_' + datesplit[1] + '_' + (today.getYear() % 100) + '_1129am_' + dashfile[dashType] + '_Start'), 'Natasha');
 	patches.push(patch);
-	currentPatch = patches.length - 1;
+	currentPatch++;
 	asset = new Asset('Promo 4: '+ dash[dashType] + ' Dash', 4, 'cat000000/r_promo4', '', 3);
 	assets.push(asset);
 	asset = new Asset('Promo 4p1: Dash Sign-Up', 4, 'cat000000/r_promo4p1', '', 3);
@@ -583,9 +673,9 @@ function addDash(dashType) {
 	else
 		time = '8:59pm';
 	
-	patch = new Patch(dash[dashType] + ' Dash (Over)', date, '1:29pm', (datesplit[0] + '_' + datesplit[1] + '_15_129pm_' + dashfile[dashType] + '_Over'), 'Natasha');
+	patch = new Patch(dash[dashType] + ' Dash (Over)', date, '1:29pm', (datesplit[0] + '_' + datesplit[1] + '_' + (today.getYear() % 100) + '_129pm_' + dashfile[dashType] + '_Over'), 'Natasha');
 	patches.push(patch);
-	currentPatch = patches.length - 1;
+	currentPatch++;
 	asset = new Asset(('Promo 4: ' + after1), 4, 'cat000000/r_promo4', '', 4);
 	assets.push(asset);
 	asset = new Asset(('Promo 4p1: ' + after2), 4, 'cat000000/r_promo4p1', '', 4);
@@ -594,16 +684,20 @@ function addDash(dashType) {
 	assets.push(asset);
 	addAssets(assets);
 	
-	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
-	console.log(patches);
+	buildOutput(0);
 }
 
 function buildOutput(build) {
 	// build = 0 -> build approval
 	// build = 1 -> build schedule
 	
+	//Debugging
+	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
+	console.log(patches);
+	
 	if (patches.length < 1) {
-		document.getElementById('emailbod').innerHTML = '';
+		emailsub.innerHTML = '';
+		emailbod.innerHTML = '';
 		return;
 	}
 	
@@ -618,7 +712,7 @@ function buildOutput(build) {
 	
 	
 	if (build == 0) {
-		temp = (form1.approvaltime.value == '') ? 'ASAP' : (form1.approvaltime.value + form1.approvalperiod.value);
+		temp = (approvaltime.value == '') ? 'ASAP' : approvaltime.value;
 		temp = '<p>The ' + patches[0].date + ' (' + patches[0].time + ') Patches are Ready for Approvals by ' + temp + ' Today</p>';
 	}
 	else if (build == 1 && today.getDay() == 5)
@@ -627,13 +721,13 @@ function buildOutput(build) {
 		temp = "<p>(NMO) Tonight's &amp; Tomorrow's Patches Are Ready to Schedule</p>";
 	else
 		temp = '';
-	document.getElementById('emailsub').innerHTML = temp;
+	emailsub.innerHTML = temp;
 	
 	
 	if (build == 0) {
 		prehtml += '<p><strong>The <span style="color: red;">' + patches[0].date + ' (' + patches[0].time + ')</span> Patches are posted online at: <a href="http://' + href[build] + '/index.jsp">http://' + href[build] + '/index.jsp</a><br />' +
 			'Please proof it and <span style="color: red;">respond</span> with <span style="color: red;">changes</span> or <span style="color: red;">your approval by ';
-		prehtml += (form1.approvaltime.value == '') ? 'ASAP</strong></span></p>' : (form1.approvaltime.value + form1.approvalperiod.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate() + '</strong></span></p>');
+		prehtml += (approvaltime.value == '') ? 'ASAP</strong></span></p>' : (approvaltime.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate() + '</strong></span></p>');
 		prehtml += '<p>If you are getting the "category not found page" please do one of the following to check your link:</p>' +
 			'<ol><li>Replace the "wnref1" in the url with www.neimanmarcus.com" or</li>' +
 			'<li>Do step 1 again and then add "&cacheCheckSeconds=1" at the end of the url</li>' +
@@ -818,7 +912,7 @@ function buildOutput(build) {
 							html += '</p><p><strong>Jump Pages (F0):</strong><br />';
 					}
 					
-					temp = 'http://' + href[build] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
@@ -832,9 +926,9 @@ function buildOutput(build) {
 					}
 					
 					if (assets[j].state == 3 && build == 0)
-						temp = 'http://' + href[build + 2] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+						temp = 'http://' + href[build + 2] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					else
-						temp = 'http://' + href[build] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+						temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					
 					if (assets[j].state == 1) // Turn On
 						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -855,7 +949,7 @@ function buildOutput(build) {
 							html += '</p><p><strong>Silo Banners:</strong><br />';
 					}
 					
-					temp = 'http://' + href[build] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					if (assets[j].state == 1) // Turn On
 						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
 					else if (assets[j].state == 2 && build == 0) // Turn Off
@@ -875,7 +969,7 @@ function buildOutput(build) {
 							html += '</p><p><strong>Nav Aux:</strong><br />';
 					}
 					
-					temp = 'http://' + href[build] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					if (assets[j].state == 1) // Turn On
 						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green;">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
 					else if (assets[j].state == 2 && build == 0) // Turn Off
@@ -895,7 +989,20 @@ function buildOutput(build) {
 							html += '</p><p><strong>Videos:</strong><br />';
 					}
 					
-					temp = 'http://' + href[build] + '/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+					
+					break;
+					
+				case 16:  // InSite
+					if (j == 0)
+						html += '<p><strong>InSite:</strong><br />';
+					else {
+						if (assets[j-1].type != 16)
+							html += '</p><p><strong>InSite:</strong><br />';
+					}
+					
+					temp = 'http://' + href[1] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
@@ -910,13 +1017,13 @@ function buildOutput(build) {
 	}
 	
 	if (build == 1)
-		prehtml += '<span style="color: purple;">Creative: ' + form1.oncall.value + '</span>';
+		prehtml += '<span style="color: purple;">Creative: ' + oncall.value + '</span>';
 	prehtml += '</p>';
 	html += '</div>' + spacer + '<p><strong>What do the colors mean?</strong><br />' +
 		'<span style="color: green;">GREEN: Merchant Action</span> | <span style="color: purple;">PURPLE: Creative Contact</span> | <span style="color: orange;">ORANGE: Production Action</span> |<br />' +
 		'<span style="color: red;">RED: Patch Description</span> | <span style="color: gray;">GRAY: Mentos Folder Name</span> | <span style="color: magenta;">PINK: Homepage Scrolling icid tag</span> | <span style="color: blue;">BLUE: Category Link</span></p>' + spacer;
 	
-	document.getElementById('emailbod').innerHTML = prehtml + html;
+	emailbod.innerHTML = prehtml + html;
 	
 	$('#patchlist div[patch=' + currentPatch + ']').addClass('selected').find('span[asset=' + currentAsset + ']').addClass('selected');
 	$('#patchlist a').attr('target', '_blank');
