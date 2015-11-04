@@ -49,6 +49,10 @@ table td + td {
 	display: inline-block;
 }
 
+#left h2 {
+	display: inline-block;
+}
+
 #right {
 	width: 32%;
 	height: 96%;
@@ -121,12 +125,17 @@ span[asset].selected {
 	display: block;
 }
 
-#combinepop input,
-#editpop input {
+#combinepop input[type=text],
+#editpop input[type=text] {
 	width: 97%;
 }
 
 .ui-tooltip {
 	color: red;
 	border-color: red;
+}
+
+ol {
+	margin-top: 0;
+	margin-bottom: 0;
 }
