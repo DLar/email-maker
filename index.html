@@ -12,43 +12,11 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
-	<div id="combinepop" title="Combining Patches">
-		<p>The following patches will be combined:<br />
-		<strong><span id="patchnames" patch1="" patch2=""></span></strong></p>
-		<form method="post">
-			<label>New Name:<br />
-			<input type="text" value="" id="combinedname" /></label>
-			<label>New Folder Name:<br />
-			<input type="text" value="" id="combinedfolder" /></label>
-			<label>Merchants:<br />
-			<input type="text" value="" id="combinedmerchants" /></label>
-		</form>
-	</div>
-	
-	<div id="editpop" title="Edit Patch">
-		<form method="post">
-			<label>Name:<br />
-			<input type="text" value="" id="editname" /></label>
-			<table>
-				<tr>
-					<td><label>Date:<br />
-					<input type="text" value="" id="editdate" /></label></td>
-					<td><label>Time:<br />
-					<input type="text" maxlength="7" value="" id="edittime" /></label></td>
-				</tr>
-			</table>
-			<label>Folder Name:<br />
-			<input type="text" value="" id="editfolder" /></label>
-			<label>Merchant:<br />
-			<input type="text" value="" id="editmerchant" /></label>
-		</form>
-	</div>
-	
 	<div id="left">
-		<h2 style="display: inline-block; margin-top: 0;">Subject</h2>
+		<h2 style="margin-top: 0;">Subject</h2>
 		<input type="button" value="Select All" onClick="selectText('emailsub')" />
 		<div id="emailsub"></div>
-		<h2 style="display: inline-block;">Body</h2>
+		<h2>Body</h2>
 		<input type="button" value="Select All" onClick="selectText('emailbod')" />
 		<div id="emailbod"></div>
 	</div>
@@ -65,32 +33,35 @@
 					<option value="Crystal 972.824.6327">Crystal</option>
 				</select>
 			</label><br />
-			<label>Approval By: <input type="text" maxlength="5" size="5" id="approvaltime" /></label> <em>(ASAP will be used if blank)</em><br />
-			<input type="button" id="removeasset" onClick="removeAsset()" value="Remove Asset" title="No assets to remove" />
-			<input type="button" id="removepatch" onClick="removePatch()" value="Remove Patch" title="No patches to remove" />
+			<label>Approval By: <input type="text" maxlength="7" size="7" id="approvaltime" placeholder="ASAP" /></label><br />
+			<input type="button" id="removeselected" onClick="removeSelected()" value="Remove Selected" title="No patches or assets to remove" />
 			<input type="button" id="checkpatches" onClick="checkPatches()" value="Combine Patches" title="No patches to combine" /><br />
-			<input type="button" onClick="loadPrev()" value="Load Previous" />
+			<input type="button" onClick="loadPrevious()" value="Load Previous" />
 			<input type="button" onClick="buildOutput(1)" value="Generate EOD" />
 			<input type="button" onClick="exportJSON()" value="Export" /><br />
-			<input type="file" id="file" accept=".json" title="Missing input file" />
+			<input type="file" id="FILE" accept=".json" title="Missing input file" />
 			<input type="button" id="loadfile" onClick="loadFile()" value="Import" title="Empty or invalid JSON file" /><br />
 			<input type="button" onClick="clearForm()" value="Clear Fields" style="margin-bottom: 10px;" />
 			
 			<div id="accordion">
 				<h3>Add Patch</h3>
 				<div>
-					<label>Name: <input type="text" id="patchname" title="Missing patch name" /></label><br />
+					<label>Name: <input type="text" id="patchname" title="Missing patch name" value="Refresh" /></label><br />
 					<label>Date: <input type="text" size="5" id="patchdate" title="Missing patch date" /></label>
 					<label>Time: <input type="text" maxlength="7" size="7" id="patchtime" title="Missing patch time" /></label><br />
 					<label>Folder Name: <input type="text" id="patchfolder" title="Missing or invalid patch folder name" /></label><br />
 					<label>Merchant: <input type="text" id="patchmerchant" title="Missing merchant name" /></label><br />
+                    Cutlines: <label><input type="checkbox" name="patchcutline" value="1" />Live</label>
+                    <label><input type="checkbox" name="patchcutline" value="2" />Remove</label><br />
 					<input type="button" id="addpatch" onClick="addPatch()" value="Add Patch" title="Need at least 1 patch before adding any assets" />
 				</div>
 				
 				<h3>Homepage</h3>
 				<div>
-					<label>Header Promo 1: <input type="text" id="hpromo1" name="hpromo" /></label><label><input type="checkbox" id="hp1" value="Free Shipping"/>Default</label><br />
-					<label>Header Promo 2: <input type="text" id="hpromo2" name="hpromo" /></label><label><input type="checkbox" id="hp2" value="Pre-Fall Trends"/>Default</label><br />
+					<label>Header Promo 1: <input type="text" id="hpromo1" name="hpromo" /></label>
+                    <label><input type="checkbox" id="hp1" value="Free Shipping + Free Returns" />Default</label><br />
+					<label>Header Promo 2: <input type="text" id="hpromo2" name="hpromo" /></label>
+                    <label><input type="checkbox" id="hp2" value="INC Free 2-Day Shipping" />Default</label><br />
 					<label>Header Promo 3: <input type="text" name="hpromo" /></label><br />
 					<label>Header Promo 4: <input type="text" name="hpromo" /></label><br /><br />
 					
@@ -99,68 +70,67 @@
 					<table>
 						<tr>
 							<td><label>Main 1: <input type="text" data="1" name="main" /></label></td>
-							<td><label>icid=<input type="text" name="micid" /></label></td>
+							<td><label>icid= <input type="text" name="micid" /></label></td>
 						</tr>
 						<tr>
 							<td><label>Main 2: <input type="text" data="2" name="main" /></label></td>
-							<td><label>icid=<input type="text" name="micid" /></label></td>
+							<td><label>icid= <input type="text" name="micid" /></label></td>
 						</tr>
 						<tr>
 							<td><label>Main 3: <input type="text" data="3" name="main" /></label></td>
-							<td><label>icid=<input type="text" name="micid" /></label></td>
+							<td><label>icid= <input type="text" name="micid" /></label></td>
 						</tr>
-						<tr><td colspan="2">&nbsp;</td></tr>
 						<tr>
 							<td><label>Promo 1: <input type="text" data="1" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 						<tr>
 							<td><label>Promo 2: <input type="text" data="2" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 						<tr>
 							<td><label>Promo 3: <input type="text" data="3" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 						<tr>
-							<td><label>Promo 4: <input type="text" data="4" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>Promo 4abc: <input type="text" data="4abc" name="promo" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 						<tr>
 							<td><label>Promo 5a6a: <input type="text" data="5a6a" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 						<tr>
-							<td><label>Promo 5b: <input type="text" data="5b" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>Promo 5bc: <input type="text" data="5bc" name="promo" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 							<tr>
-							<td><label>Promo 6b: <input type="text" data="6b" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>Promo 6bc: <input type="text" data="6bc" name="promo" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 						<tr>
-							<td><label>Promo 7: <input type="text" data="7" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>Promo 7abc: <input type="text" data="7abc" name="promo" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 						<tr>
 							<td><label>Promo 8a: <input type="text" data="8a" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 						<tr>
 							<td><label>Promo 8b: <input type="text" data="8b" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
+						</tr>
+                        <tr>
+							<td><label>Promo 8c: <input type="text" data="8c" name="promo" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 						<tr>
-							<td><label>Promo 9: <input type="text" data="9" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+							<td><label>Promo 9a: <input type="text" data="9a" name="promo" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
-						<tr>
-							<td><label>Promo 10a: <input type="text" data="10a" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
-						</tr>
-						<tr>
-							<td><label>Promo 10bc: <input type="text" data="10bc" name="promo" /></label></td>
-							<td><label>icid=<input type="text" name="picid" /></label></td>
+                        <tr>
+							<td><label>Promo 9bc: <input type="text" data="9bc" name="promo" /></label></td>
+							<td><label>icid= <input type="text" name="picid" /></label></td>
 						</tr>
 					</table>
 					<input type="button" id="addhomepage" onClick="addHomepage()" value="Add Homepage" title="No assets added for homepage" />
@@ -178,7 +148,7 @@
 				<div>
 					<table>
 						<tr>
-							<td><!--<input type="text" />--></td>
+							<td></td>
 							<td>On</td>
 							<td>Off</td>
 						</tr>
@@ -202,13 +172,11 @@
 							<td><input type="checkbox" name="sm4state1" value="1" /></td>
 							<td><input type="checkbox" name="sm4state2" value="2" /></td>
 						</tr>
-						<!--
 						<tr>
-							<td><label><input type="checkbox" name="sm4" data="Accessories" value="cat????????" />Accessories</label></td>
+							<td><label><input type="checkbox" name="sm4" data="Accessories" value="cat46660745" />Accessories</label></td>
 							<td><input type="checkbox" name="sm4state1" value="1" /></td>
 							<td><input type="checkbox" name="sm4state2" value="2" /></td>
 						</tr>
-						-->
 						<tr>
 							<td><label><input type="checkbox" name="sm4" data="Beauty" value="cat46690735" />Beauty</label></td>
 							<td><input type="checkbox" name="sm4state1" value="1" /></td>
@@ -235,7 +203,7 @@
 							<td><input type="checkbox" name="sm4state2" value="2" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm4" data="Sale" value="cat46800750" />Sale</label></td>
+							<td><label><input type="checkbox" name="sm4" data="Sale" value="cat980731" />Sale</label></td>
 							<td><input type="checkbox" name="sm4state1" value="1" /></td>
 							<td><input type="checkbox" name="sm4state2" value="2" /></td>
 						</tr>
@@ -247,7 +215,7 @@
 				<div>
 					<table>
 						<tr>
-							<td><!--<input type="text" />--></td>
+							<td></td>
 							<td>Remove</td>
 						</tr>
 						<tr>
@@ -317,7 +285,7 @@
 				<h3>Popups &amp; Promo Tiles</h3>
 				<div>
 					<label>Name: <input type="text" id="poptilename" title="Missing popup/promo tile name" /></label><br />
-					<label>Folder/File Name: <input type="text" id="poptilefname" title="Missing or invalid popup/promo tile folder name" /></label><br />
+					<label>Folder/File Name: <input type="text" id="poptilefolder" title="Missing or invalid popup/promo tile folder name" /></label><br />
 					<input type="button" onClick="addPopTile(9)" value="Add Popup" />
 					<input type="button" onClick="addPopTile(10)" value="Add Promo Tile" />
 				</div>
@@ -342,13 +310,48 @@
 				<h3>Dashes</h3>
 				<div>
 					<label>Dash Date: <input type="text" id="dashdate" size="5" title="Missing dash date" /></label><br />
-					<label>After Dash Promo 4: <input type="text" id="afterdash1" title="Missing after dash promo 4" /></label><label><input type="checkbox" id="dash1" value="MasterPass"/>Default</label><br />
-					<label>After Dash Promo 4p1: <input type="text" id="afterdash2" title="Missing after dash promo 4p1" /></label><label><input type="checkbox" id="dash2" value="MasterPass"/>Default</label><br />
+					<label>After Dash Promo 4: <input type="text" id="afterdash1" title="Missing after dash promo 4" value="InCircle" /></label><br />
+					<label>After Dash Promo 4p1: <input type="text" id="afterdash2" title="Missing after dash promo 4p1" value="InCircle" /></label><br />
 					<label><input type="checkbox" id="dashextended" />Extended</label><br />
 					<input type="button" onClick="addDash(0);" value="Add Midday Dash" />
 					<input type="button" onClick="addDash(1);" value="Add Twilight Dash" />
 				</div>
 			</div>
+		</form>
+	</div>
+    
+    <div id="combinepop" title="Combining Patches">
+		<p>The following patches will be combined:<br />
+		<strong><span id="patchnames"></span></strong></p>
+		<form method="post">
+			<label>New Name:<br />
+			<input type="text" id="combinedname" /></label>
+			<label>New Folder Name:<br />
+			<input type="text" id="combinedfolder" /></label>
+			<label>Merchants:<br />
+			<input type="text" id="combinedmerchants" /></label>
+		</form>
+	</div>
+	
+	<div id="editpop" title="Edit Patch">
+		<form method="post">
+			<label>Name:<br />
+			<input type="text" id="editname" /></label>
+			<table>
+				<tr>
+					<td><label>Date:<br />
+					<input type="text" id="editdate" /></label></td>
+					<td><label>Time:<br />
+					<input type="text" maxlength="7" id="edittime" /></label></td>
+				</tr>
+			</table>
+			<label>Folder Name:<br />
+			<input type="text" id="editfolder" /></label>
+			<label>Merchant:<br />
+			<input type="text" id="editmerchant" /></label>
+            Cutlines:
+			<label style="display: inline;"><input type="checkbox" name="editcutline" value="1" />Live</label>
+            <label style="display: inline;"><input type="checkbox" name="editcutline" value="2" />Remove</label>
 		</form>
 	</div>
 </body>
