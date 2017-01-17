@@ -42,6 +42,10 @@ table td + td {
 }
 */
 
+.hide {
+	display: none;
+}
+
 #left {
 	width: 65%;
 	font-size:13px;
@@ -120,13 +124,13 @@ span[asset].selected {
 	z-index: 0;
 }
 
-#combinepop label,
-#editpop label {
+#editpatch label,
+#editasset label {
 	display: block;
 }
 
-#combinepop input[type=text],
-#editpop input[type=text] {
+#editpatch input[type=text],
+#editasset input[type=text] {
 	width: 97%;
 }
 
