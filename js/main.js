@@ -5,6 +5,10 @@ $(document).ready(function() {
 		dateFormat: 'm/d'
 	}).not('#editdate').datepicker('setDate', today);
 	
+	today.setHours(today.getHours()+2);
+	today.setMinutes(Math.ceil(today.getMinutes() / 15) * 15);
+	$('#approvaltime').val((today.getHours() % 12 || 12) + ((today.getMinutes() < 10) ? '' : ':' + today.getMinutes()) + ((today.getHours() < 12) ? 'am' : 'pm'));
+	
 	$('input[type=text]').blur(function() {
 		$(this).val($.trim($(this).val()));
 	});
@@ -30,6 +34,13 @@ $(document).ready(function() {
 			$('#hpromo2').val($(this).val());
 		else
 			$('#hpromo2').val('');
+	});
+	
+	$('#eligibility').change(function() {
+		if($(this).is(':checked'))
+			$('#poptilename').val($(this).val());
+		else
+			$('#poptilename').val('');
 	});
 	
 	$('#accordion').accordion({
@@ -114,7 +125,6 @@ $(document).ready(function() {
 				patches[currentPatch].assets[currentAsset].type = parseInt(edittype.value);
 				patches[currentPatch].assets[currentAsset].state = parseInt(editstate.value);
 				patches[currentPatch].assets[currentAsset].path = editpath.value;
-				patches[currentPatch].assets[currentAsset].icid = editicid.value;
 				
 				patches[currentPatch].assets = patches[currentPatch].assets.sort(sortAssets);
 				buildApp();
@@ -170,7 +180,6 @@ $(document).ready(function() {
 		edittype.value = patches[currentPatch].assets[currentAsset].type;
 		editstate.value = patches[currentPatch].assets[currentAsset].state;
 		editpath.value = patches[currentPatch].assets[currentAsset].path;
-		editicid.value = patches[currentPatch].assets[currentAsset].icid;
 		
 		$('#editasset').dialog('open');
 	});
@@ -187,9 +196,8 @@ var build = 0;
 /*
 Asset Types:
 1 = Header Promo
-2 = Ticker
-3 = Main
-4 = Promo
+2 = Homepage
+3 = CUSP
 5 = Designer Index
 6 = Silo Main
 7 = Silo Promo
@@ -202,6 +210,7 @@ Asset Types:
 14 = Nav Aux
 15 = Video
 16 = InSite
+17 = Entry Page
 
 Cutlines:
 1 = Go Live
@@ -212,7 +221,6 @@ States:
 2 = Turn Off
 3 = Removed
 4 = Dash (Temporary)
-5 = Dash (Temporary)
 */
 
 function Patch(date, time, folder, info) {
@@ -229,11 +237,10 @@ function Info(name, merchant, cutline) {
 	this.cutline = cutline || '';
 }
 
-function Asset(name, type, path, icid, state) {
+function Asset(name, type, path, state) {
 	this.name = name;
 	this.type = type;
 	this.path = path;
-	this.icid = icid || '';
 	this.state = state || '';
 }
 
@@ -448,7 +455,6 @@ function addHomepage() {
 	}
 	
 	var assets = [];
-	var icid;
 	
 	var hpromo = '';
 	var hpromos = document.getElementsByName('hpromo');
@@ -462,26 +468,10 @@ function addHomepage() {
 		assets.push(new Asset(hpromo, 1, 'cat000000'));
 	}
 	
-	var ticker = form1.ticker.value;
-	if (ticker !== '') {
-		assets.push(new Asset(ticker, 2, 'cat000000'));
-	}
-	
-	var mains = document.getElementsByName('main');
-	var micids = document.getElementsByName('micid');
-	for (i = 0; i < mains.length; i++) {
-		if (mains[i].value !== '') {
-			icid = (micids[i].value !== '') ? micids[i].value : '';
-			assets.push(new Asset(('Main ' + mains[i].getAttribute('data') + ': ' + mains[i].value), 3, 'cat000000', icid));
-		}
-	}
-	
-	var promos = document.getElementsByName('promo');
-	var picids = document.getElementsByName('picid');
-	for (i = 0; i < promos.length; i++) {
-		if (promos[i].value !== '') {
-			icid = (picids[i].value !== '') ? picids[i].value : '';
-			assets.push(new Asset(('Promo ' + promos[i].getAttribute('data') + ': ' + promos[i].value), 4, 'cat000000', icid));
+	var hpmg = document.getElementsByName('hpmg');
+	for (i = 0; i < hpmg.length; i++) {
+		if (hpmg[i].value !== '') {
+			assets.push(new Asset((hpmg[i].getAttribute('data') + ': ' + hpmg[i].value), 2, 'cat000000'));
 		}
 	}
 	
@@ -500,10 +490,35 @@ function addDesignerIndex() {
 	}
 	
 	var selections = document.getElementsByName('di');
+	var selections2 = document.getElementsByName('distate');
 	var assets = [];
+	var state;
 	for (var i = 0; i < selections.length; i++) {
-		if (selections[i].checked)
-			assets.push(new Asset(selections[i].getAttribute('data'), 5, selections[i].value));
+		if (selections[i].checked) {
+			state = (selections2[i].checked) ? parseInt(selections2[i].value) : '';
+			assets.push(new Asset(selections[i].getAttribute('data'), 5, selections[i].value, state));
+		}
+	}
+	
+	addAssets(assets);
+	buildApp();
+}
+
+function addCUSP() {
+	if (currentPatch === -1) {
+		noPatch();
+		return;
+	}
+	
+	var selections = document.getElementsByName('cusp');
+	var selections2 = document.getElementsByName('cuspstate');
+	var assets = [];
+	var state;
+	for (var i = 0; i < selections.length; i++) {
+		if (selections[i].checked) {
+			state = (selections2[i].checked) ? parseInt(selections2[i].value) : '';
+			assets.push(new Asset(selections[i].getAttribute('data'), 3, selections[i].value, state));
+		}
 	}
 	
 	addAssets(assets);
@@ -524,7 +539,7 @@ function addSiloMain() {
 	for (var i = 0; i < selections.length; i++) {
 		if (selections[i].checked) {
 			state = (selections2[i].checked) ? parseInt(selections2[i].value) : (selections3[i].checked) ? parseInt(selections3[i].value) : '';
-			assets.push(new Asset(selections[i].getAttribute('data'), 6, selections[i].value, '', state));
+			assets.push(new Asset(selections[i].getAttribute('data'), 6, selections[i].value, state));
 		}
 	}
 	
@@ -532,20 +547,20 @@ function addSiloMain() {
 	buildApp();
 }
 
-function addSiloPromo1() {
+function addSiloPromo() {
 	if (currentPatch === -1) {
 		noPatch();
 		return;
 	}
 	
-	var selections = document.getElementsByName('sp1');
-	var selections2 = document.getElementsByName('sp1state');
+	var selections = document.getElementsByName('sp');
+	var selections2 = document.getElementsByName('spstate');
 	var assets = [];
 	var state;
 	for (var i = 0; i < selections.length; i++) {
 		if (selections[i].checked) {
 			state = (selections2[i].checked) ? parseInt(selections2[i].value) : '';
-			assets.push(new Asset(selections[i].getAttribute('data'), 7, selections[i].value, '', state));
+			assets.push(new Asset(selections[i].getAttribute('data'), 7, selections[i].value, state));
 		}
 	}
 	
@@ -560,10 +575,13 @@ function addDrawerTicker() {
 	}
 	
 	var selections = document.getElementsByName('dt');
+	var selections2 = document.getElementsByName('dtstate');
 	var assets = [];
+	var state;
 	for (var i = 0; i < selections.length; i++) {
 		if (selections[i].checked) {
-			assets.push(new Asset(selections[i].getAttribute('data'), 8, selections[i].value));
+			state = (selections2[i].checked) ? parseInt(selections2[i].value) : '';
+			assets.push(new Asset(selections[i].getAttribute('data'), 8, selections[i].value, state));
 		}
 	}
 	
@@ -607,7 +625,7 @@ function addOther() {
 		return;
 	}
 	
-	addAssets(new Asset(name, type, catid, '', state));
+	addAssets(new Asset(name, type, catid, state));
 	buildApp();
 }
 
@@ -629,8 +647,8 @@ function addPopTile(type) {
 		return;
 	}
 	
-	if (name === 'Eligibility')
-		addAssets(new Asset(name, type, ('Eligibility/' + folder), '', 3));
+	if (eligibility.checked)
+		addAssets(new Asset(name, type, ('Eligibility/' + folder), 3));
 	else
 		addAssets(new Asset(name, type, folder));
 	
@@ -674,10 +692,10 @@ function addDash(dashType) {
 	
 	patches.push(new Patch(date, time, folder, new Info(dash[dashType] + ' Dash (Start)', 'Chandler')));
 	currentPatch = patches.length - 1;
-	assets.push(new Asset('Promo 4: '+ dash[dashType] + ' Dash', 4, 'cat000000/r_promo4', '', 3));
-	assets.push(new Asset('Promo 4p1: Dash Sign-Up', 4, 'cat000000/r_promo4p1', '', 3));
+	assets.push(new Asset('Promo 4: '+ dash[dashType] + ' Dash', 2, 'cat000000/r_promo4', 3));
+	assets.push(new Asset('Promo 4p1: Dash Sign-Up', 2, 'cat000000/r_promo4p1', 3));
 	assets.push(new Asset(dash[dashType] + ' Dash (Start)', 12, 'cat21000740'));
-	assets.push(new Asset(dash[dashType] + ' Dash', 9, 'MiddayDash/MiddayDash_popup', '', 3));
+	assets.push(new Asset(dash[dashType] + ' Dash', 9, 'MiddayDash/MiddayDash_popup', 3));
 	addAssets(assets);
 	assets = [];
 	
@@ -689,9 +707,9 @@ function addDash(dashType) {
 	
 	patches.push(new Patch(date, time, folder, new Info(dash[dashType] + ' Dash (Over)', 'Chandler')));
 	currentPatch++;
-	assets.push(new Asset(('Promo 4: ' + after1), 4, 'cat000000/r_promo4', '', 4));
-	assets.push(new Asset(('Promo 4p1: ' + after2), 4, 'cat000000/r_promo4p1', '', 4));
-	assets.push(new Asset(dash[dashType] + ' Dash (Over)', 12, 'cat21000740', '', 3));
+	assets.push(new Asset(('Promo 4: ' + after1), 2, 'cat000000/r_promo4', 4));
+	assets.push(new Asset(('Promo 4p1: ' + after2), 2, 'cat000000/r_promo4p1', 4));
+	assets.push(new Asset(dash[dashType] + ' Dash (Over)', 12, 'cat21000740', 3));
 	addAssets(assets);
 	
 	buildApp();
@@ -753,7 +771,14 @@ function buildOutput() {
 		temp = 'The ' + patches[0].date + ' (' + temp + ') Patches are Ready for Approvals by ' + ((approvaltime.value === '') ? 'ASAP' : approvaltime.value) + ' Today';
 	}
 	else {
-		temp = "(NMO) " + ((today.getDay() === 5) ? "This Weekend's" : "Tonight's &amp; Tomorrow's") + " Patches Are Ready to Schedule";
+		temp = "(NMO) ";
+		if (today.getDay() === 5)
+			temp += "This Weekend's";
+		else if (today.getDate() === parseInt(patches[0].date.split('/')[1]))
+			temp += "Tonight's &amp; Tomorrow's";
+		else
+			temp += "Tomorrow's";
+		temp += " Patches Are Ready to Schedule";
 		
 		prehtml += 'Producers,<br />' + temp + '!<br />';
 	}
@@ -793,31 +818,7 @@ function buildOutput() {
 					
 					break;
 					
-				case 2: // Ticker
-					if (j === 0) {
-						html += '<strong>Homepage</strong> <a href="http://' + href[build] + '/index.jsp?mobilePreview=1">http://' + href[build] + '/index.jsp?mobilePreview=1</a><br />' +
-							'Click link above to view entire desktop &amp; mobile site<br />';
-					}
-					
-					html += '<span asset="' + j + '">Ticker: ' + assets[j].name + '</span><br />';
-					
-					break;
-					
-				case 3: // Main
-					if (j === 0) {
-						html += '<strong>Homepage</strong> <a href="http://' + href[build] + '/index.jsp?mobilePreview=1">http://' + href[build] + '/index.jsp?mobilePreview=1</a><br />' +
-							'Click link above to view entire desktop &amp; mobile site<br />';
-					}
-					
-					html += '<span asset="' + j + '">' + assets[j].name;
-					if (assets[j].icid !== '')
-						html += ' <span style="color: lightseagreen">icid=' + assets[j].icid + '</span></span><br />';
-					else
-						html += '</span><br />';
-					
-					break;
-					
-				case 4: // Promo
+				case 2: // Homepage
 					if (j === 0) {
 						html += '<strong>Homepage</strong> <a href="http://' + href[build] + '/index.jsp?mobilePreview=1">http://' + href[build] + '/index.jsp?mobilePreview=1</a><br />' +
 							'Click link above to view entire desktop &amp; mobile site<br />';
@@ -832,37 +833,46 @@ function buildOutput() {
 						temp = 'http://' + href[build] + '/category/' + assets[j].path + '.html';
 						html += ' <a href="' + temp + '">' + temp + '</a></span><br />';
 					}
-					
-					else if (assets[j].icid !== '')
-						html += ' <span style="color: lightseagreen">icid=' + assets[j].icid + '</span></span><br />';
 					else
 						html += '</span><br />';
+					
+					break;
+					
+				case 3: // CUSP
+					if (j === 0)
+						html += '<strong>CUSP:</strong><br />';
+					else if (assets[j-1].type !== 3)
+						html += '<br /><strong>CUSP:</strong><br />';
+					
+					temp = (assets[j].path === 'r_cusp_promo') ? 'http://' + href[build] + '/CUSP/cat58930763/c.cat' : 'http://' + href[build] + '/category/cat58930763/' + assets[j].path + '.html';
+					
+					if (assets[j].state === 3) // Removed
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+					else
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 5: // Designer Index
 					if (j === 0)
 						html += '<strong>Designer Indexes:</strong><br />';
-					else {
-						if (assets[j-1].type !== 5)
-							html += '<br /><strong>Designer Indexes:</strong><br />';
-					}
+					else if (assets[j-1].type !== 5)
+						html += '<br /><strong>Designer Indexes:</strong><br />';
 					
-					if (assets[j].path === 'cat45050736')
-						temp = 'http://' + href[build] + '/category/' + assets[j].path + '/r_main_drawer_promo.html';
+					temp = 'http://' + href[build] + '/category/' + assets[j].path + '.html';
+					
+					if (assets[j].state === 3) // Removed
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
 					else
-						temp = 'http://' + href[build] + '/category/' + assets[j].path + '/r_designer_promo.html';
-					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
-				case 6: // Silo Main
+				case 6: // Silo Mains
 					if (j === 0)
 						html += '<strong>Silo Mains:</strong><br />';
-					else {
-						if (assets[j-1].type !== 6)
-							html += '<br /><strong>Silo Mains:</strong><br />';
-					}
+					else if (assets[j-1].type !== 6)
+						html += '<br /><strong>Silo Mains:</strong><br />';
 					
 					temp = (assets[j].path === 'cat980731') ? 'http://' + href[build] + '/Sale/' + assets[j].path + '/c.cat' : 'http://' + href[build] + '/category/' + assets[j].path + '/r_main.html';
 					html += '<span asset="' + j + '">' + assets[j].name;
@@ -875,13 +885,11 @@ function buildOutput() {
 					
 					break;
 					
-				case 7: // Silo Promo 1
+				case 7: // Silo Promos
 					if (j === 0)
-						html += '<strong>Silo Promo 1:</strong><br />';
-					else {
-						if (assets[j-1].type !== 7)
-							html += '<br /><strong>Silo Promo 1:</strong><br />';
-					}
+						html += '<strong>Silo Promos:</strong><br />';
+					else if (assets[j-1].type !== 7)
+						html += '<br /><strong>Silo Promos:</strong><br />';
 					
 					temp = 'http://' + href[build] + '/category.jsp?itemId=' + assets[j].path + '&parentId=&siloId=' + assets[j].path;
 					html += '<span asset="' + j + '">' + assets[j].name;
@@ -895,23 +903,23 @@ function buildOutput() {
 				case 8: // Drawer Tickers
 					if (j === 0)
 						html += '<strong>Drawer Tickers:</strong><br />';
-					else {
-						if (assets[j-1].type !== 8)
-							html += '<br /><strong>Drawer Tickers:</strong><br />';
-					}
+					else if (assets[j-1].type !== 8)
+						html += '<br /><strong>Drawer Tickers:</strong><br />';
 					
 					temp = 'http://' + href[build] + '/category/' + assets[j].path + '/r_main_drawer_promo.html';
-					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+					
+					if (assets[j].state === 3) // Removed
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+					else
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
 				case 9: // Popups
 					if (j === 0)
 						html += '<strong>Popups:</strong><br />';
-					else {
-						if (assets[j-1].type !== 9)
-							html += '<br /><strong>Popups:</strong><br />';
-					}
+					else if (assets[j-1].type !== 9)
+						html += '<br /><strong>Popups:</strong><br />';
 					
 					if (assets[j].state === 3)
 						temp = 'http://' + href[build] + '/category/popup/' + assets[j].path + '.html';
@@ -925,10 +933,8 @@ function buildOutput() {
 				case 10: // Promo Tiles
 					if (j === 0)
 						html += '<strong>Promo Tiles:</strong><br />';
-					else {
-						if (assets[j-1].type !== 10)
-							html += '<br /><strong>Promo Tiles:</strong><br />';
-					}
+					else if (assets[j-1].type !== 10)
+						html += '<br /><strong>Promo Tiles:</strong><br />';
 					
 					temp = 'http://' + href[build] + '/category/promotiles/' + assets[j].path + '.html';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -938,10 +944,8 @@ function buildOutput() {
 				case 11: // Jump Pages (F0)
 					if (j === 0)
 						html += '<strong>Jump Pages (F0):</strong><br />';
-					else {
-						if (assets[j-1].type !== 11)
-							html += '<br /><strong>Jump Pages (F0):</strong><br />';
-					}
+					else if (assets[j-1].type !== 11)
+						html += '<br /><strong>Jump Pages (F0):</strong><br />';
 					
 					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -951,13 +955,11 @@ function buildOutput() {
 				case 12: // Graphic Headers
 					if (j === 0)
 						html += '<strong>Graphic Headers:</strong><br />';
-					else {
-						if (assets[j-1].type !== 12)
-							html += '<br /><strong>Graphic Headers:</strong><br />';
-					}
+					else if (assets[j-1].type !== 12)
+						html += '<br /><strong>Graphic Headers:</strong><br />';
 					
 					if (assets[j].state === 3 && build === 0)
-						temp = 'http://' + href[build + 2] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+						temp = 'http://' + href[build + 2] + '/category/' + assets[j].path + '/r_head_long.html';
 					else
 						temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					
@@ -976,10 +978,8 @@ function buildOutput() {
 				case 13: // Silo Banners
 					if (j === 0)
 						html += '<strong>Silo Banners:</strong><br />';
-					else {
-						if (assets[j-1].type !== 13)
-							html += '<br /><strong>Silo Banners:</strong><br />';
-					}
+					else if (assets[j-1].type !== 13)
+						html += '<br /><strong>Silo Banners:</strong><br />';
 					
 					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name;
@@ -997,10 +997,8 @@ function buildOutput() {
 				case 14: // Nav Aux
 					if (j === 0)
 						html += '<strong>Nav Aux:</strong><br />';
-					else {
-						if (assets[j-1].type !== 14)
-							html += '<br /><strong>Nav Aux:</strong><br />';
-					}
+					else if (assets[j-1].type !== 14)
+						html += '<br /><strong>Nav Aux:</strong><br />';
 					
 					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name;
@@ -1018,10 +1016,8 @@ function buildOutput() {
 				case 15: // Videos
 					if (j === 0)
 						html += '<strong>Videos:</strong><br />';
-					else {
-						if (assets[j-1].type !== 15)
-							html += '<br /><strong>Videos:</strong><br />';
-					}
+					else if (assets[j-1].type !== 15)
+						html += '<br /><strong>Videos:</strong><br />';
 					
 					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -1031,10 +1027,19 @@ function buildOutput() {
 				case 16: // InSite
 					if (j === 0)
 						html += '<strong>InSite:</strong><br />';
-					else {
-						if (assets[j-1].type !== 16)
-							html += '<br /><strong>InSite:</strong><br />';
-					}
+					else if (assets[j-1].type !== 16)
+						html += '<br /><strong>InSite:</strong><br />';
+					
+					temp = 'http://' + href[1] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+					
+					break;
+					
+				case 17: // Entry Pages
+					if (j === 0)
+						html += '<strong>Entry Pages:</strong><br />';
+					else if (assets[j-1].type !== 17)
+						html += '<br /><strong>Entry Pages:</strong><br />';
 					
 					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -1055,7 +1060,7 @@ function buildOutput() {
 		prehtml += '<span style="color: purple">Creative: ' + oncall.value + '</span><br />';
 	html += '</div>' + spacer + '<strong>What do the colors mean?</strong><br />' +
 		'<span style="color: green">GREEN: Merchant Action</span> | <span style="color: purple">PURPLE: Creative Contact</span> | <span style="color: orange">ORANGE: Production Action</span> |<br />' +
-		'<span style="color: red">RED: Patch Description</span> | <span style="color: gray">GRAY: Mentos Folder Name</span> | <span style="color: lightseagreen">TEAL: Homepage icid Tag</span> | <span style="color: blue">BLUE: Category Link</span><br /><br />' + spacer;
+		'<span style="color: red">RED: Patch Description</span> | <span style="color: gray">GRAY: Mentos Folder Name</span> | <span style="color: blue">BLUE: Category Link</span><br /><br />' + spacer;
 	
 	prehtml = prehtml.replace(/Midday Dash \(Start\): Chandler<br \/>|Twilight Dash \(Start\): Chandler<br \/>| \(Over\)/g, '');
 	emailbod.innerHTML = prehtml + '<br />' + html;
