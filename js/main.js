@@ -19,7 +19,7 @@ $(document).ready(function() {
 	});
 	$('#approvaltime').blur(function() {
 		if(build === 0) 
-			buildApp();
+			buildOutput();
 	});
 	
 	$('#hp1').change(function() {
@@ -82,6 +82,7 @@ $(document).ready(function() {
 				var merchants = document.getElementsByName('editmerchant');
 				var selections = document.getElementsByName('editlive');
 				var selections2 = document.getElementsByName('editremove');
+				var remove = parseInt(editremove.value);
 				
 				for (var i = 0; i < info.length; i++) {
 					info[i].name = names[i].value;
@@ -96,14 +97,18 @@ $(document).ready(function() {
 						continue;
 					}
 					else
-						info[i].cutline = '';
+						info[i].cutline = 0;
 				}
 				
+				if (remove !== -1)
+					patches[currentPatch].info.splice(remove, 1);
+				
+				patches[currentPatch].test1 = (edittest1.checked) ? true : false;
 				patches[currentPatch].date = editdate.value;
 				patches[currentPatch].time = edittime.value;
 				patches[currentPatch].folder = editfolder.value;
 				
-				buildApp();
+				buildOutput();
 			},
 			Cancel: function() {
 				$(this).dialog('close');
@@ -127,7 +132,7 @@ $(document).ready(function() {
 				patches[currentPatch].assets[currentAsset].path = editpath.value;
 				
 				patches[currentPatch].assets = patches[currentPatch].assets.sort(sortAssets);
-				buildApp();
+				buildOutput();
 			},
 			Cancel: function() {
 				$(this).dialog('close');
@@ -153,19 +158,21 @@ $(document).ready(function() {
 	});
 	
 	$('#emailbod').on('dblclick', '#patchlist div[patch]', function() {
-		var temp = '';
+		var temp = '', temp2 = '<option value="-1"></option>';
 		var info = patches[currentPatch].info;
 		for (var i = 0; i < info.length; i++) {
-			temp += '<label>Name:<br />' +
-				'<input type="text" name="editname" value="' + info[i].name + '" /></label>' +
-				'<label>Merchant:<br />' +
-				'<input type="text" name="editmerchant" value="' + info[i].merchant + '" /></label>' +
-				'Cutlines:' +
-				'<label><input type="checkbox" name="editlive" value="1" ' + ((info[i].cutline === 1) ? 'checked ' : '') + '/>Live</label>' +
-				'<label><input type="checkbox" name="editremove" value="2" ' + ((info[i].cutline === 2) ? 'checked ' : '') + '/>Remove</label>';
+			temp += '<tr><td colspan="2"><label>Name:<input type="text" name="editname" value="' + info[i].name + '" /></label></td></tr>' +
+				'<tr><td colspan="2"><label>Merchant:<input type="text" name="editmerchant" value="' + info[i].merchant + '" /></label></td></tr>' +
+				'<tr><td colspan="2">Cutlines: <label><input type="checkbox" name="editlive" value="1" ' + ((info[i].cutline === 1) ? 'checked ' : '') + '/>Live</label> ' +
+				'<label><input type="checkbox" name="editremove" value="2" ' + ((info[i].cutline === 2) ? 'checked ' : '') + '/>Remove</label></td></tr>';
+			
+			if (info.length > 1)
+				temp2 += '<option value="' + i + '">' + info[i].name + '</option>';
 		}
-		document.getElementById('editinfo').innerHTML = temp;
+		editinfo.innerHTML = temp;
+		editremove.innerHTML = temp2;
 		
+		edittest1.checked = patches[currentPatch].test1;
 		editdate.value = patches[currentPatch].date;
 		edittime.value = patches[currentPatch].time;
 		editfolder.value = patches[currentPatch].folder;
@@ -211,37 +218,39 @@ Asset Types:
 15 = Video
 16 = InSite
 17 = Entry Page
+18 = Checkout
 
 Cutlines:
-1 = Go Live
+1 = Live
 2 = Remove
 
 States:
 1 = Turn On
 2 = Turn Off
 3 = Removed
-4 = Dash (Temporary)
+4 = Link
 */
 
-function Patch(date, time, folder, info) {
+function Patch(date, time, folder, info, test1) {
 	this.date = date;
 	this.time = time;
 	this.folder = folder;
 	this.info = [info];
 	this.assets = [];
+	this.test1 = test1 || false;
 }
 
 function Info(name, merchant, cutline) {
 	this.name = name;
 	this.merchant = merchant;
-	this.cutline = cutline || '';
+	this.cutline = cutline || 0;
 }
 
 function Asset(name, type, path, state) {
 	this.name = name;
 	this.type = type;
 	this.path = path;
-	this.state = state || '';
+	this.state = state || 0;
 }
 
 function addPatch() {
@@ -251,7 +260,7 @@ function addPatch() {
 	var time = patchtime.value;
 	var folder = patchfolder.value;
 	var merchant = patchmerchant.value;
-	var cutline = '';
+	var cutline = 0;
 	
 	var selections = document.getElementsByName('patchcutline');
 	for (i = 0; i < selections.length; i++) {
@@ -285,7 +294,7 @@ function addPatch() {
 	patches.push(new Patch(date, time, folder, new Info(name, merchant, cutline)));
 	currentPatch = patches.length - 1;
 	
-	buildApp();
+	buildOutput();
 }
 
 function removeSelected() {
@@ -306,7 +315,7 @@ function removeSelected() {
 			currentPatch--;
 	}
 	
-	buildApp();
+	buildOutput();
 }
 
 function patchMove() {
@@ -320,7 +329,7 @@ function patchMove() {
 	}
 	
 	patches = temp;
-	buildApp();
+	buildOutput();
 }
 
 function noPatch() {
@@ -359,7 +368,7 @@ function combinePatches() {
 	var combined = 0;
 	for (var i = 0; i < patches.length; i++) {
 		for (var j = i + 1; j < patches.length; j++) {
-			if (patches[i].date === patches[j].date && patches[i].time === patches[j].time) {
+			if (patches[i].folder === patches[j].folder) {
 				currentPatch = i;
 				currentAsset = -1;
 				patches[i].info = patches[i].info.concat(patches[j].info);
@@ -371,7 +380,7 @@ function combinePatches() {
 		}
 	}
 	
-	buildApp();
+	buildOutput();
 	
 	if (combined > 0)
 		alert('Successfully combined ' + combined + ' patches!');
@@ -410,7 +419,7 @@ function importJSON(data) {
 	
 	currentPatch = patches.length;
 	patches = patches.concat(json);
-	buildApp();
+	buildOutput();
 }
 
 function exportJSON() {
@@ -419,8 +428,10 @@ function exportJSON() {
 		return;
 	}
 	
-	var blob = new Blob([JSON.stringify(patches, null, '\t')], {type: 'text/plain;charset=utf-8'});
-	saveAs(blob, patches[0].folder + '.json');
+	for (var i = 0; i < patches.length; i++) {
+		var blob = new Blob([JSON.stringify(patches.slice(i, i+1), null, '\t')], {type: 'text/plain;charset=utf-8'});
+		saveAs(blob, patches[i].folder + '.json');
+	}
 }
 
 function clearForm() {
@@ -469,15 +480,17 @@ function addHomepage() {
 	}
 	
 	var hpmg = document.getElementsByName('hpmg');
+	var state;
 	for (i = 0; i < hpmg.length; i++) {
 		if (hpmg[i].value !== '') {
-			assets.push(new Asset((hpmg[i].getAttribute('data') + ': ' + hpmg[i].value), 2, 'cat000000'));
+			state = (hpmg[i].parentElement.textContent === "Main 1P: ") ? 4 : 0;
+			assets.push(new Asset((hpmg[i].parentElement.textContent + hpmg[i].value), 2, hpmg[i].getAttribute('path'), state));
 		}
 	}
 	
 	if (assets.length > 0) {
 		addAssets(assets);
-		buildApp();
+		buildOutput();
 	}
 	else
 		$('#addhomepage').tooltip('enable').focus();
@@ -495,13 +508,13 @@ function addDesignerIndex() {
 	var state;
 	for (var i = 0; i < selections.length; i++) {
 		if (selections[i].checked) {
-			state = (selections2[i].checked) ? parseInt(selections2[i].value) : '';
-			assets.push(new Asset(selections[i].getAttribute('data'), 5, selections[i].value, state));
+			state = (selections2[i].checked) ? parseInt(selections2[i].value) : 0;
+			assets.push(new Asset(selections[i].parentElement.textContent, 5, selections[i].value, state));
 		}
 	}
 	
 	addAssets(assets);
-	buildApp();
+	buildOutput();
 }
 
 function addCUSP() {
@@ -516,13 +529,13 @@ function addCUSP() {
 	var state;
 	for (var i = 0; i < selections.length; i++) {
 		if (selections[i].checked) {
-			state = (selections2[i].checked) ? parseInt(selections2[i].value) : '';
-			assets.push(new Asset(selections[i].getAttribute('data'), 3, selections[i].value, state));
+			state = (selections2[i].checked) ? parseInt(selections2[i].value) : 0;
+			assets.push(new Asset(selections[i].parentElement.textContent, 3, selections[i].value, state));
 		}
 	}
 	
 	addAssets(assets);
-	buildApp();
+	buildOutput();
 }
 
 function addSiloMain() {
@@ -538,13 +551,13 @@ function addSiloMain() {
 	var state;
 	for (var i = 0; i < selections.length; i++) {
 		if (selections[i].checked) {
-			state = (selections2[i].checked) ? parseInt(selections2[i].value) : (selections3[i].checked) ? parseInt(selections3[i].value) : '';
-			assets.push(new Asset(selections[i].getAttribute('data'), 6, selections[i].value, state));
+			state = (selections2[i].checked) ? parseInt(selections2[i].value) : (selections3[i].checked) ? parseInt(selections3[i].value) : 0;
+			assets.push(new Asset(selections[i].parentElement.textContent, 6, selections[i].value, state));
 		}
 	}
 	
 	addAssets(assets);
-	buildApp();
+	buildOutput();
 }
 
 function addSiloPromo() {
@@ -559,13 +572,13 @@ function addSiloPromo() {
 	var state;
 	for (var i = 0; i < selections.length; i++) {
 		if (selections[i].checked) {
-			state = (selections2[i].checked) ? parseInt(selections2[i].value) : '';
-			assets.push(new Asset(selections[i].getAttribute('data'), 7, selections[i].value, state));
+			state = (selections2[i].checked) ? parseInt(selections2[i].value) : 0;
+			assets.push(new Asset(selections[i].parentElement.textContent, 7, selections[i].value, state));
 		}
 	}
 	
 	addAssets(assets);
-	buildApp();
+	buildOutput();
 }
 
 function addDrawerTicker() {
@@ -580,13 +593,13 @@ function addDrawerTicker() {
 	var state;
 	for (var i = 0; i < selections.length; i++) {
 		if (selections[i].checked) {
-			state = (selections2[i].checked) ? parseInt(selections2[i].value) : '';
-			assets.push(new Asset(selections[i].getAttribute('data'), 8, selections[i].value, state));
+			state = (selections2[i].checked) ? parseInt(selections2[i].value) : 0;
+			assets.push(new Asset(selections[i].parentElement.textContent, 8, selections[i].value, state));
 		}
 	}
 	
 	addAssets(assets);
-	buildApp();
+	buildOutput();
 }
 
 function addOther() {
@@ -626,7 +639,7 @@ function addOther() {
 	}
 	
 	addAssets(new Asset(name, type, catid, state));
-	buildApp();
+	buildOutput();
 }
 
 function addPopTile(type) {
@@ -648,17 +661,16 @@ function addPopTile(type) {
 	}
 	
 	if (eligibility.checked)
-		addAssets(new Asset(name, type, ('Eligibility/' + folder), 3));
-	else
-		addAssets(new Asset(name, type, folder));
+		folder = 'Eligibility/' + folder;
+	else if (type !== 10)
+		folder += '/' + folder;
 	
-	buildApp();
+	addAssets(new Asset(name, type, folder));
+	
+	buildOutput();
 }
 
-function addDash(dashType) {
-	// dashType = 0 -> Midday Dash
-	// dashType = 1 -> Twilight Dash
-	
+function addDash() {
 	var time;
 	var folder;
 	var assets = [];
@@ -666,8 +678,6 @@ function addDash(dashType) {
 	var after2 = afterdash2.value;
 	var date = dashdate.value;
 	var datesplit = date.split('/');
-	var dash = ['Midday','Twilight'];
-	var dashfolder = ['MDash', 'EveningDash'];
 	
 	if (date === '') {
 		$('#dashdate').tooltip('enable').focus();
@@ -682,47 +692,60 @@ function addDash(dashType) {
 		return;
 	}
 	
-	if (dashType === 1 && dashextended.checked)
-		time = '2:45pm';
-	else if (dashType === 1 && !dashextended.checked)
-		time = '4:45pm';
-	else
-		time = '11:15am';
-	folder = ((datesplit[0].length === 1) ? '0' : '') + datesplit[0] + '_' + ((datesplit[1].length === 1) ? '0' : '') + datesplit[1] + '_' + (today.getYear() % 100) + '_' + time.replace(':', '') + '_' + dashfolder[dashType] + '_Start';
+	time = '11:15am';
+	folder = ((datesplit[0].length === 1) ? '0' : '') + datesplit[0] + '_' + ((datesplit[1].length === 1) ? '0' : '') + datesplit[1] + '_' + (today.getYear() % 100) + '_' + time.replace(':', '') + '_MDash_Start';
 	
-	patches.push(new Patch(date, time, folder, new Info(dash[dashType] + ' Dash (Start)', 'Chandler')));
+	patches.push(new Patch(date, time, folder, new Info('Midday Dash (Start)', 'Chandler')));
 	currentPatch = patches.length - 1;
-	assets.push(new Asset('Promo 4: '+ dash[dashType] + ' Dash', 2, 'cat000000/r_promo4', 3));
-	assets.push(new Asset('Promo 4p1: Dash Sign-Up', 2, 'cat000000/r_promo4p1', 3));
-	assets.push(new Asset(dash[dashType] + ' Dash (Start)', 12, 'cat21000740'));
-	assets.push(new Asset(dash[dashType] + ' Dash', 9, 'MiddayDash/MiddayDash_popup', 3));
+	assets.push(new Asset('Promo 4: Midday Dash', 2, 'cat000000/r_promo5', 4));
+	assets.push(new Asset('Promo 4p1: Dash Sign-Up', 2, 'cat000000/r_promo5p1', 4));
+	assets.push(new Asset('Midday Dash (Start)', 12, 'cat21000740'));
+	assets.push(new Asset('Midday Dash', 9, 'MiddayDash/MiddayDash_popup'));
 	addAssets(assets);
 	assets = [];
 	
-	if (dashType === 1)
-		time = '9pm';
-	else
-		time = '3:30pm';
-	folder = ((datesplit[0].length === 1) ? '0' : '') + datesplit[0] + '_' + ((datesplit[1].length === 1) ? '0' : '') + datesplit[1] + '_' + (today.getYear() % 100) + '_' + time.replace(':', '') + '_' + dashfolder[dashType] + '_Over';
+	time = '3:30pm';
+	folder = ((datesplit[0].length === 1) ? '0' : '') + datesplit[0] + '_' + ((datesplit[1].length === 1) ? '0' : '') + datesplit[1] + '_' + (today.getYear() % 100) + '_' + time.replace(':', '') + '_MDash_Over';
 	
-	patches.push(new Patch(date, time, folder, new Info(dash[dashType] + ' Dash (Over)', 'Chandler')));
+	patches.push(new Patch(date, time, folder, new Info('Midday Dash (Over)', 'Chandler'), true));
 	currentPatch++;
-	assets.push(new Asset(('Promo 4: ' + after1), 2, 'cat000000/r_promo4', 4));
-	assets.push(new Asset(('Promo 4p1: ' + after2), 2, 'cat000000/r_promo4p1', 4));
-	assets.push(new Asset(dash[dashType] + ' Dash (Over)', 12, 'cat21000740', 3));
+	assets.push(new Asset(('Promo 4: ' + after1), 2, 'cat000000/r_promo5', 4));
+	assets.push(new Asset(('Promo 4p1: ' + after2), 2, 'cat000000/r_promo5p1', 4));
+	assets.push(new Asset('Midday Dash (Over)', 12, 'cat21000740', 4));
 	addAssets(assets);
 	
-	buildApp();
+	buildOutput();
 }
 
-function buildApp() {
+function addCheckout() {
+	if (currentPatch === -1) {
+		noPatch();
+		return;
+	}
+	
+	var selections = document.getElementsByName('co');
+	var selections2 = document.getElementsByName('costate');
+	var assets = [];
+	var state;
+	for (var i = 0; i < selections.length; i++) {
+		if (selections[i].checked) {
+			state = (selections2[i].checked) ? parseInt(selections2[i].value) : 0;
+			assets.push(new Asset(selections[i].parentElement.textContent, 18, selections[i].value, state));
+		}
+	}
+	
+	addAssets(assets);
+	buildOutput();
+}
+
+function switchApp() {
 	build = 0;
 	$('#app').hide();
 	$('#eod').show();
 	buildOutput();
 }
 	
-function buildEOD() {
+function switchEOD() {
 	build = 1;
 	$('#eod').hide();
 	$('#app').show();
@@ -743,32 +766,28 @@ function buildOutput() {
 	
 	localStorage.setItem('previous-json', JSON.stringify(patches));
 	
-	var prehtml ='';
+	var prehtml = '';
 	var html = '<div id="patchlist">';
-	var assets = [];
-	var href = ['wn.ref1.nmg','www.neimanmarcus.com','wn.test1.nmg'];
+	var assets, href, temp; // For holding temporary information (usually constructed hrefs)
 	var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 	var spacer = '<span style="color: red">______________________________________________________________________</span><br /><br />';
-	var temp; // For holding temporary information (usually constructed hrefs)
 	
 	if (build === 0) {
 		if (patches[0].info[0].name === 'Midday Dash (Start)')
 			temp = 'MDash';
-		else if (patches[0].info[0].name === 'Twilight Dash (Start)')
-			temp = 'Twilight Dash';
 		else
 			temp = patches[0].time;
 		
 		prehtml += '<strong>The <span style="color: red">' + patches[0].date + ' (' + temp + ')</span> Patches are posted online at: ' +
-			'<a href="http://' + href[build] + '/index.jsp?mobilePreview=1">http://' + href[build] + '/index.jsp?mobilePreview=1</a><br />' +
+			'<a href="http://wn.ref1.nmg/index.jsp?mobilePreview=1">http://wn.ref1.nmg/index.jsp?mobilePreview=1</a><br />' +
 			'Please proof it and <span style="color: red">respond</span> with <span style="color: red">changes</span> or <span style="color: red">your approval by ' +
-			((approvaltime.value === '') ? 'ASAP' : (approvaltime.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate())) + '</strong></span><br />' +
+			((approvaltime.value === '') ? approvaltime.placeholder : (approvaltime.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate())) + '</strong></span><br />' +
 			'If you are getting the "category not found page" please do one of the following to check your link:<br />' +
-			'<ol><li>Replace the "wnref1" in the url with www.neimanmarcus.com" or</li>' +
+			'<ol><li>Replace the "wn.ref1.nmg" in the url with www.neimanmarcus.com" or</li>' +
 			'<li>Do step 1 again and then add "&cacheCheckSeconds=1" at the end of the url</li>' +
 			'<li>Or move item from Temp Folder.</li></ol><br />';
 		
-		temp = 'The ' + patches[0].date + ' (' + temp + ') Patches are Ready for Approvals by ' + ((approvaltime.value === '') ? 'ASAP' : approvaltime.value) + ' Today';
+		temp = 'The ' + patches[0].date + ' (' + temp + ') Patches are Ready for Approvals by ' + ((approvaltime.value === '') ? approvaltime.placeholder : approvaltime.value) + ' Today';
 	}
 	else {
 		temp = "(NMO) ";
@@ -788,6 +807,15 @@ function buildOutput() {
 	
 	for (var i = 0; i < patches.length; i++) {
 		assets = patches[i].assets;
+		if (build === 0) {
+			if (patches[i].test1)
+				href = 'wn.test1.nmg';
+			else
+				href = 'wn.ref1.nmg';
+		}
+		else
+			href = 'www.neimanmarcus.com';
+		
 		html += '<div patch="' + i + '">' + spacer;
 		if (build === 1)
 			html += '<span style="color: gray"><strong>Folder: ' + patches[i].folder + '</strong></span><br /><br />';
@@ -796,7 +824,7 @@ function buildOutput() {
 		for (var k = 0; k < patches[i].info.length; k++) {
 			prehtml += '<br />' + patches[i].info[k].name + ': ' + patches[i].info[k].merchant;
 			html += ((k === 0) ? patches[i].info[k].name : (', ' + patches[i].info[k].name));
-			if (patches[i].info[k].cutline !== '')
+			if (patches[i].info[k].cutline === 1 || patches[i].info[k].cutline === 2)
 				temp += '<span style="color: orange"><strong>(' + patches[i].info[k].name + ' - Cutlines will go ' + ((patches[i].info[k].cutline === 1) ? 'LIVE' : 'DOWN') + ' at this time)</strong></span><br />';
 		}
 		html += '</strong></span><br />' + temp + '<br />';
@@ -805,14 +833,14 @@ function buildOutput() {
 			switch (assets[j].type) {
 				case 1: // Header Promo
 					if (j === 0) {
-						html += '<strong>Homepage</strong> <a href="http://' + href[build] + '/index.jsp?mobilePreview=1">http://' + href[build] + '/index.jsp?mobilePreview=1</a><br />' +
+						html += '<strong>Homepage</strong> <a href="http://' + href + '/index.jsp?mobilePreview=1">http://' + href + '/index.jsp?mobilePreview=1</a><br />' +
 							'Click link above to view entire desktop &amp; mobile site<br />';
 					}
 					
-					temp = 'http://' + href[build] + '/category/cat000000/r_header_promo.html';
+					temp = 'http://' + href + '/category/cat000000/r_header_promo.html';
 					html += '<span asset="' + j + '">Header Promo: ' + assets[j].name + '<br />' +
 							'<a href="' + temp + '">' + temp + '</a><br />';
-					temp = 'http://' + href[build] + '/category/cat000000/r_mobile_header_promo.html';
+					temp = 'http://' + href + '/category/cat000000/r_mobile_header_promo.html';
 					html += 'Mobile Headerpromo: ' + assets[j].name + '<br />' +
 							'<a href="' + temp + '">' + temp + '</a></span><br />';
 					
@@ -820,17 +848,13 @@ function buildOutput() {
 					
 				case 2: // Homepage
 					if (j === 0) {
-						html += '<strong>Homepage</strong> <a href="http://' + href[build] + '/index.jsp?mobilePreview=1">http://' + href[build] + '/index.jsp?mobilePreview=1</a><br />' +
+						html += '<strong>Homepage</strong> <a href="http://' + href + '/index.jsp?mobilePreview=1">http://' + href + '/index.jsp?mobilePreview=1</a><br />' +
 							'Click link above to view entire desktop &amp; mobile site<br />';
 					}
 					
 					html += '<span asset="' + j + '">' + assets[j].name;
-					if (assets[j].state === 4 && build === 0) {
-						temp = 'http://' + href[build + 2] + '/category/' + assets[j].path + '.html';
-						html += ' <a href="' + temp + '">' + temp + '</a></span><br />';
-					}
-					else if (assets[j].state === 3 || assets[j].state === 4) {
-						temp = 'http://' + href[build] + '/category/' + assets[j].path + '.html';
+					if (assets[j].state === 4) {
+						temp = 'http://' + href + '/category/' + assets[j].path + '.html';
 						html += ' <a href="' + temp + '">' + temp + '</a></span><br />';
 					}
 					else
@@ -844,7 +868,7 @@ function buildOutput() {
 					else if (assets[j-1].type !== 3)
 						html += '<br /><strong>CUSP:</strong><br />';
 					
-					temp = (assets[j].path === 'r_cusp_promo') ? 'http://' + href[build] + '/CUSP/cat58930763/c.cat' : 'http://' + href[build] + '/category/cat58930763/' + assets[j].path + '.html';
+					temp = (assets[j].path === 'r_cusp_promo') ? 'http://' + href + '/CUSP/cat58930763/c.cat' : 'http://' + href + '/category/cat58930763/' + assets[j].path + '.html';
 					
 					if (assets[j].state === 3) // Removed
 						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -859,7 +883,7 @@ function buildOutput() {
 					else if (assets[j-1].type !== 5)
 						html += '<br /><strong>Designer Indexes:</strong><br />';
 					
-					temp = 'http://' + href[build] + '/category/' + assets[j].path + '.html';
+					temp = 'http://' + href + '/category/' + assets[j].path + '.html';
 					
 					if (assets[j].state === 3) // Removed
 						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -874,7 +898,7 @@ function buildOutput() {
 					else if (assets[j-1].type !== 6)
 						html += '<br /><strong>Silo Mains:</strong><br />';
 					
-					temp = (assets[j].path === 'cat980731') ? 'http://' + href[build] + '/Sale/' + assets[j].path + '/c.cat' : 'http://' + href[build] + '/category/' + assets[j].path + '/r_main.html';
+					temp = (assets[j].path === 'cat980731') ? 'http://' + href + '/Sale/' + assets[j].path + '/c.cat' : 'http://' + href + '/category/' + assets[j].path + '/r_main.html';
 					html += '<span asset="' + j + '">' + assets[j].name;
 					if (assets[j].state === 1) // Turn On
 						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -891,7 +915,7 @@ function buildOutput() {
 					else if (assets[j-1].type !== 7)
 						html += '<br /><strong>Silo Promos:</strong><br />';
 					
-					temp = 'http://' + href[build] + '/category.jsp?itemId=' + assets[j].path + '&parentId=&siloId=' + assets[j].path;
+					temp = 'http://' + href + '/category.jsp?itemId=' + assets[j].path + '&parentId=&siloId=' + assets[j].path;
 					html += '<span asset="' + j + '">' + assets[j].name;
 					if (assets[j].state === 3) // Removed
 						html += ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -906,7 +930,7 @@ function buildOutput() {
 					else if (assets[j-1].type !== 8)
 						html += '<br /><strong>Drawer Tickers:</strong><br />';
 					
-					temp = 'http://' + href[build] + '/category/' + assets[j].path + '/r_main_drawer_promo.html';
+					temp = 'http://' + href + '/category/' + assets[j].path + '/r_main_drawer_promo.html';
 					
 					if (assets[j].state === 3) // Removed
 						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -921,11 +945,7 @@ function buildOutput() {
 					else if (assets[j-1].type !== 9)
 						html += '<br /><strong>Popups:</strong><br />';
 					
-					if (assets[j].state === 3)
-						temp = 'http://' + href[build] + '/category/popup/' + assets[j].path + '.html';
-					else
-						temp = 'http://' + href[build] + '/category/popup/' + assets[j].path + '/' + assets[j].path + '.html';
-					
+					temp = 'http://' + href + '/category/popup/' + assets[j].path + '.html';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
@@ -936,7 +956,7 @@ function buildOutput() {
 					else if (assets[j-1].type !== 10)
 						html += '<br /><strong>Promo Tiles:</strong><br />';
 					
-					temp = 'http://' + href[build] + '/category/promotiles/' + assets[j].path + '.html';
+					temp = 'http://' + href + '/category/promotiles/' + assets[j].path + '.html';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
@@ -947,7 +967,7 @@ function buildOutput() {
 					else if (assets[j-1].type !== 11)
 						html += '<br /><strong>Jump Pages (F0):</strong><br />';
 					
-					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
@@ -958,17 +978,17 @@ function buildOutput() {
 					else if (assets[j-1].type !== 12)
 						html += '<br /><strong>Graphic Headers:</strong><br />';
 					
-					if (assets[j].state === 3 && build === 0)
-						temp = 'http://' + href[build + 2] + '/category/' + assets[j].path + '/r_head_long.html';
+					if (assets[j].state === 4 && build === 0)
+						temp = 'http://' + href + '/category/' + assets[j].path + '/r_head_long.html';
 					else
-						temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+						temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					
 					html += '<span asset="' + j + '">' + assets[j].name;
 					if (assets[j].state === 1) // Turn On
 						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
-					else if (assets[j].state === 2 && build === 0) // Turn Off
+					else if (assets[j].state === 2 && build === 0) // Turn Off Test
 						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br />';
-					else if (assets[j].state === 2 && build === 1) // Turn Off
+					else if (assets[j].state === 2 && build === 1) // Turn Off Live
 						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br />';
 					else
 						html += ': <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -981,13 +1001,13 @@ function buildOutput() {
 					else if (assets[j-1].type !== 13)
 						html += '<br /><strong>Silo Banners:</strong><br />';
 					
-					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name;
 					if (assets[j].state === 1) // Turn On
 						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
-					else if (assets[j].state === 2 && build === 0) // Turn Off
+					else if (assets[j].state === 2 && build === 0) // Turn Off Test
 						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br />';
-					else if (assets[j].state === 2 && build === 1) // Turn Off
+					else if (assets[j].state === 2 && build === 1) // Turn Off Live
 						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br />';
 					else
 						html += ': <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -1000,13 +1020,13 @@ function buildOutput() {
 					else if (assets[j-1].type !== 14)
 						html += '<br /><strong>Nav Aux:</strong><br />';
 					
-					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name;
 					if (assets[j].state === 1) // Turn On
 						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
-					else if (assets[j].state === 2 && build === 0) // Turn Off
+					else if (assets[j].state === 2 && build === 0) // Turn Off Test
 						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br />';
-					else if (assets[j].state === 2 && build === 1) // Turn Off
+					else if (assets[j].state === 2 && build === 1) // Turn Off Live
 						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br />';
 					else
 						html += ': <a href="' + temp + '">' + temp + '</a></span><br />';
@@ -1019,7 +1039,7 @@ function buildOutput() {
 					else if (assets[j-1].type !== 15)
 						html += '<br /><strong>Videos:</strong><br />';
 					
-					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
@@ -1030,7 +1050,7 @@ function buildOutput() {
 					else if (assets[j-1].type !== 16)
 						html += '<br /><strong>InSite:</strong><br />';
 					
-					temp = 'http://' + href[1] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'http://www.neimanmarcus.com/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
@@ -1041,8 +1061,23 @@ function buildOutput() {
 					else if (assets[j-1].type !== 17)
 						html += '<br /><strong>Entry Pages:</strong><br />';
 					
-					temp = 'http://' + href[build] + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+					
+					break;
+					
+				case 18: // Checkout
+					if (j === 0)
+						html += '<strong>Checkout:</strong><br />';
+					else if (assets[j-1].type !== 18)
+						html += '<br /><strong>Checkout:</strong><br />';
+					
+					temp = 'http://' + href + '/category/' + assets[j].path + '.html';
+					
+					if (assets[j].state === 3) // Removed
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+					else
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
 					
 					break;
 					
@@ -1062,18 +1097,9 @@ function buildOutput() {
 		'<span style="color: green">GREEN: Merchant Action</span> | <span style="color: purple">PURPLE: Creative Contact</span> | <span style="color: orange">ORANGE: Production Action</span> |<br />' +
 		'<span style="color: red">RED: Patch Description</span> | <span style="color: gray">GRAY: Mentos Folder Name</span> | <span style="color: blue">BLUE: Category Link</span><br /><br />' + spacer;
 	
-	prehtml = prehtml.replace(/Midday Dash \(Start\): Chandler<br \/>|Twilight Dash \(Start\): Chandler<br \/>| \(Over\)/g, '');
+	prehtml = prehtml.replace(/Midday Dash \(Start\): Chandler<br \/>| \(Over\)/g, '');
 	emailbod.innerHTML = prehtml + '<br />' + html;
 	
 	$('#patchlist div[patch=' + currentPatch + ']').addClass('selected').find('span[asset=' + currentAsset + ']').addClass('selected');
 	$('#patchlist a').attr('target', '_blank');
-	$('#patchlist').sortable({
-		placeholder: 'sortable-placeholder',
-		cursor: 'move',
-		forcePlaceholderSize: true,
-		update: patchMove,
-		create: function(){
-			$(this).height($(this).height());
-		}
-	});
 }

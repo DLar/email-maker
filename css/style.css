@@ -13,17 +13,22 @@ input[type=button]:hover {
 }
 
 input[type=button]:active {
-	background-color: #C2C2C2;
-	color: white;
+	background-color: #E5E5E5;
 }
 
 input[type=button]:focus {
 	outline: none;
 }
 
-label {
+input {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+#right label {
 	display: inline-block;
-	padding: 2px;
+	padding: 3px;
 }
 
 div.ui-datepicker{
@@ -31,16 +36,14 @@ div.ui-datepicker{
 }
 
 body {
-	font-family: "Lucida Grande", Arial, sans-serif;
+	font-family: Arial, sans-serif;
 	font-size:12px;
 	margin: 20px;
 }
 
-/*
-table td + td {
-	text-align: center;
+table {
+	border-collapse: collapse;
 }
-*/
 
 .hide {
 	display: none;
@@ -55,6 +58,7 @@ table td + td {
 
 #left h2 {
 	display: inline-block;
+	margin-top: 0px;
 }
 
 #right {
@@ -95,6 +99,7 @@ a {
 
 #patchlist div.selected {
 	background-color: #E5E5E5;
+	border-color: white !important;
 }
 
 #patchlist div:hover {
@@ -115,23 +120,28 @@ span[asset].selected {
 	background-color: orange;
 }
 
-.sortable-placeholder {
-	border: 1px dashed grey !important;
-}
-
 .ui-widget-overlay
 {
 	z-index: 0;
 }
 
-#editpatch label,
-#editasset label {
-	display: block;
+#editpatch td,
+#editasset td {
+	padding: 5px;
 }
 
 #editpatch input[type=text],
-#editasset input[type=text] {
-	width: 97%;
+#editasset input[type=text],
+#editpatch select,
+#editasset select {
+	width: 100%;
+	display: block;
+}
+
+#editinfo tr:nth-child(6n+4) td,
+#editinfo tr:nth-child(6n+5) td,
+#editinfo tr:nth-child(6n+6) td {
+	background-color: #E5E5E5;
 }
 
 .ui-tooltip {

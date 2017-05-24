@@ -13,7 +13,7 @@
 </head>
 <body>
 	<div id="left">
-		<h2 style="margin-top: 0;">Subject</h2>
+		<h2>Subject</h2>
 		<input type="button" value="Select All" onClick="selectText('emailsub')" />
 		<div id="emailsub"></div>
 		<h2>Body</h2>
@@ -23,7 +23,7 @@
 	
 	<div id="right">
 		<form id="form1" method="post">
-			<h2 style="margin-top: 0;">Options</h2>
+			<h2>Options</h2>
 			<label>On Call: 
 				<select id="oncall">
 					<option value="David 214.724.5826">David</option>
@@ -35,8 +35,8 @@
 			<input type="button" id="removeselected" onClick="removeSelected()" value="Remove Selected" title="No patches or assets to remove" />
 			<input type="button" id="combinepatches" onClick="combinePatches()" value="Combine Patches" title="No patches to combine" /><br />
 			<input type="button" onClick="loadPrevious()" value="Load Previous" />
-			<input type="button" id="eod" onClick="buildEOD()" value="Generate EOD" />
-			<input type="button" id="app" onClick="buildApp()" value="Generate Approval" />
+			<input type="button" id="eod" onClick="switchEOD()" value="Generate EOD" />
+			<input type="button" id="app" onClick="switchApp()" value="Generate Approval" />
 			<input type="button" id="exportfile" onClick="exportJSON()" value="Export" title="Nothing to export" /><br />
 			<input type="file" id="FILE" accept=".json" title="Missing input file" />
 			<input type="button" id="loadfile" onClick="loadFile()" value="Import" title="Empty or invalid JSON file" /><br />
@@ -60,29 +60,28 @@
 					<label>Header Promo 1: <input type="text" id="hpromo1" name="hpromo" /></label>
 					<label><input type="checkbox" id="hp1" value="Free Shipping, Free Returns" />Default</label><br />
 					<label>Header Promo 2: <input type="text" id="hpromo2" name="hpromo" /></label>
-					<label><input type="checkbox" id="hp2" value="Spring Trends" />Default</label><br />
+					<label><input type="checkbox" id="hp2" value="PreFall" />Default</label><br />
 					<label>Header Promo 3: <input type="text" name="hpromo" /></label><br />
 					<label>Header Promo 4: <input type="text" name="hpromo" /></label><br /><br />
 					
-                    <label>Ticker: <input type="text" data="Ticker" name="hpmg" /></label><br />
-                    <label>Main 1: <input type="text" data="Main 1" name="hpmg" /></label><br />
-                    <label>Main 2: <input type="text" data="Main 2" name="hpmg" /></label><br />
-                    <label>Main 3: <input type="text" data="Main 3" name="hpmg" /></label><br />
-                    <label>Special Ticker: <input type="text" data="Special Ticker" name="hpmg" /></label><br />
-                    <label>Promo 1: <input type="text" data="Promo 1" name="hpmg" /></label><br />
-                    <label>Promo 2: <input type="text" data="Promo 2" name="hpmg" /></label><br />
-                    <label>Promo 3: <input type="text" data="Promo 3" name="hpmg" /></label><br />
-                    <label>Promo 4: <input type="text" data="Promo 4" name="hpmg" /></label><br />
-                    <label>Scrolling Takeover: <input type="text" data="Scrolling Takeover" name="hpmg" /></label><br />
-                    <label>Promo 5a6a: <input type="text" data="Promo 5a6a" name="hpmg" /></label><br />
-                    <label>Promo 5bc: <input type="text" data="Promo 5bc" name="hpmg" /></label><br />
-                    <label>Promo 6bc: <input type="text" data="Promo 6bc" name="hpmg" /></label><br />
-                    <label>Promo 7abc: <input type="text" data="Promo 7abc" name="hpmg" /></label><br />
-                    <label>Promo 8a: <input type="text" data="Promo 8a" name="hpmg" /></label><br />
-                    <label>Promo 8b: <input type="text" data="Promo 8b" name="hpmg" /></label><br />
-                    <label>Promo 8c: <input type="text" data="Promo 8c" name="hpmg" /></label><br />
-                    <label>Promo 9a: <input type="text" data="Promo 9a" name="hpmg" /></label><br />
-                    <label>Promo 9bc: <input type="text" data="Promo 9bc" name="hpmg" /></label><br />
+                    <label>Ticker: <input type="text" path="cat000000/r_ticker" name="hpmg" /></label><br />
+                    <label>Main 1: <input type="text" path="cat000000/r_main1" name="hpmg" /></label><br />
+                    <label>Main 1P: <input type="text" path="cat000000/r_main1_BC" name="hpmg" /></label><br />
+                    <label>Main 2: <input type="text" path="cat000000/r_main1" name="hpmg" /></label><br />
+                    <label>Main 3: <input type="text" path="cat000000/r_main1" name="hpmg" /></label><br />
+                    <label>Special Ticker: <input type="text" path="cat000000/r_promo1" name="hpmg" /></label><br />
+                    <label>Promo 1: <input type="text" path="cat000000/r_promo2" name="hpmg" /></label><br />
+                    <label>Promo 2: <input type="text" path="cat000000/r_promo3" name="hpmg" /></label><br />
+                    <label>Promo 3: <input type="text" path="cat000000/r_promo4" name="hpmg" /></label><br />
+                    <label>Promo 4: <input type="text" path="cat000000/r_promo5" name="hpmg" /></label><br />
+                    <label>Scrolling Takeover: <input type="text" path="cat000000/r_promo6" name="hpmg" /></label><br />
+                    <label>Promo 5a6a: <input type="text" path="cat000000/r_promo6" name="hpmg" /></label><br />
+                    <label>Promo 5bc: <input type="text" path="cat000000/r_promo7" name="hpmg" /></label><br />
+                    <label>Promo 6bc: <input type="text" path="cat000000/r_promo8" name="hpmg" /></label><br />
+                    <label>Promo 7abc: <input type="text" path="cat000000/r_promo9" name="hpmg" /></label><br />
+                    <label>Promo 8abc: <input type="text" path="cat000000/r_promo9" name="hpmg" /></label><br />
+                    <label>Promo 9a: <input type="text" path="cat000000/r_promo10" name="hpmg" /></label><br />
+                    <label>Promo 9bc: <input type="text" path="cat000000/r_promo11" name="hpmg" /></label><br />
 					<input type="button" id="addhomepage" onClick="addHomepage()" value="Add Homepage" title="No assets added for homepage" />
 				</div>
 				
@@ -94,15 +93,15 @@
 							<td>Removed</td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="di" data="Designer Index Drawer" value="cat45050736/r_main_drawer_promo" />Designer Index Drawer</label></td>
+							<td><label><input type="checkbox" name="di" value="cat45050736/r_main_drawer_promo" />Designer Index Drawer</label></td>
                             <td><input class="hide" type="checkbox" name="distate" value="3" /></td>
 						</tr>
 						<tr>
-                            <td><label><input type="checkbox" name="di" data="Main Designer Index" value="cat000730/r_designer_promo" />Main Designer Index</label></td>
-                            <td><input  class="hide" type="checkbox" name="distate" value="3" /></td>
+                            <td><label><input type="checkbox" name="di" value="cat000730/r_designer_promo" />Main Designer Index</label></td>
+                            <td><input class="hide" type="checkbox" name="distate" value="3" /></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="di" data="Sale Designer Index" value="cat980731/r_designer_promo" />Sale Designer Index</label></td>
+                            <td><label><input type="checkbox" name="di" value="cat980731/r_designer_promo" />Sale Designer Index</label></td>
                             <td><input type="checkbox" name="distate" value="3" /></td>
 						</tr>
 					</table>
@@ -116,28 +115,28 @@
 							<td></td>
 							<td>Removed</td>
 						</tr>
-                        <tr>
-							<td><label><input type="checkbox" name="cusp" data="Banner" value="r_cusp_banner" />Banner</label></td>
+                        <tr class="hide">
+							<td><label><input type="checkbox" name="cusp" value="r_cusp_banner" />Banner</label></td>
                             <td><input class="hide" type="checkbox" name="cuspstate" value="3" /></td>
                         </tr>
                         <tr>
-							<td><label><input type="checkbox" name="cusp" data="Bottom Refreshable" value="r_cusp_promo" />Bottom Refreshable</label></td>
+							<td><label><input type="checkbox" name="cusp" value="r_cusp_promo" />Bottom Refreshable</label></td>
                             <td><input class="hide" type="checkbox" name="cuspstate" value="3" /></td>
                         </tr>
                         <tr>
-							<td><label><input type="checkbox" name="cusp" data="Drawer Ticker" value="r_cusp_drawer_promo" />Drawer Ticker</label></td>
+							<td><label><input type="checkbox" name="cusp" value="r_cusp_drawer_promo" />Drawer Ticker</label></td>
                             <td><input type="checkbox" name="cuspstate" value="3" /></td>
                         </tr>
-                        <tr>
-							<td><label><input type="checkbox" name="cusp" data="Lookbook Overlay" value="r_lb_overlay" />Lookbook Overlay</label></td>
+                        <tr class="hide">
+							<td><label><input type="checkbox" name="cusp" value="r_lb_overlay" />Lookbook Overlay</label></td>
                             <td><input class="hide" type="checkbox" name="cuspstate" value="3" /></td>
                         </tr>
                         <tr>
-							<td><label><input type="checkbox" name="cusp" data="Quote" value="r_promo_banner1" />Quote</label></td>
+							<td><label><input type="checkbox" name="cusp" value="r_promo_banner1" />Quote</label></td>
                             <td><input class="hide" type="checkbox" name="cuspstate" value="3" /></td>
                         </tr>
                         <tr>
-							<td><label><input type="checkbox" name="cusp" data="Silo Promo" value="r_promo_banner" />Silo Promo</label></td>
+							<td><label><input type="checkbox" name="cusp" value="r_promo_banner" />Silo Promo</label></td>
                             <td><input type="checkbox" name="cuspstate" value="3" /></td>
                         </tr>
                     
@@ -154,57 +153,57 @@
 							<td>Off</td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm" data="Women's Apparel" value="cat46680737" />Women's Apparel</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat46680737" />Women's Apparel</label></td>
 							<td><input type="checkbox" name="smstate1" value="1" /></td>
 							<td><input type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
                         <tr>
-							<td><label><input type="checkbox" name="sm" data="CUSP" value="cat59600759" />CUSP</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat59600759" />CUSP</label></td>
 							<td><input type="checkbox" name="smstate1" value="1" /></td>
 							<td><input type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm" data="Shoes" value="cat46690753" />Shoes</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat46690753" />Shoes</label></td>
 							<td><input type="checkbox" name="smstate1" value="1" /></td>
 							<td><input type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm" data="Handbags" value="cat46690744" />Handbags</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat46690744" />Handbags</label></td>
 							<td><input type="checkbox" name="smstate1" value="1" /></td>
 							<td><input type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm" data="Jewelry & Accessories" value="cat46690770" />Jewelry &amp; Accessories</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat46690770" />Jewelry & Accessories</label></td>
 							<td><input type="checkbox" name="smstate1" value="1" /></td>
 							<td><input type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm" data="Beauty" value="cat46690735" />Beauty</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat46690735" />Beauty</label></td>
 							<td><input type="checkbox" name="smstate1" value="1" /></td>
 							<td><input type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm" data="The Man's Store" value="cat46680758" />The Man's Store</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat46680758" />The Man's Store</label></td>
 							<td><input type="checkbox" name="smstate1" value="1" /></td>
 							<td><input type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm" data="NM Kids" value="cat46660746" />NM Kids</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat46660746" />NM Kids</label></td>
 							<td><input type="checkbox" name="smstate1" value="1" /></td>
 							<td><input type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm" data="Home" value="cat46690774" />Home</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat46690774" />Home</label></td>
 							<td><input type="checkbox" name="smstate1" value="1" /></td>
 							<td><input type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm" data="Gifts" value="cat46690785" />Gifts</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat46690785" />Gifts</label></td>
 							<td><input type="checkbox" name="smstate1" value="1" /></td>
 							<td><input type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sm" data="Sale" value="cat980731" />Sale</label></td>
+							<td><label><input type="checkbox" name="sm" value="cat980731" />Sale</label></td>
 							<td><input class="hide" type="checkbox" name="smstate1" value="1" /></td>
 							<td><input class="hide" type="checkbox" name="smstate2" value="2" /></td>
 						</tr>
@@ -220,39 +219,39 @@
 							<td>Removed</td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sp" data="Women's Apparel" value="cat000001" />Women's Apparel</label></td>
+							<td><label><input type="checkbox" name="sp" value="cat000001" />Women's Apparel</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sp" data="Shoes" value="cat000141" />Shoes</label></td>
+							<td><label><input type="checkbox" name="sp" value="cat000141" />Shoes</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sp" data="Handbags" value="cat13030735" />Handbags</label></td>
+							<td><label><input type="checkbox" name="sp" value="cat13030735" />Handbags</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sp" data="Jewelry & Accessories" value="cat4870731" />Jewelry & Accessories</label></td>
+							<td><label><input type="checkbox" name="sp" value="cat4870731" />Jewelry & Accessories</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sp" data="Beauty" value="cat000285" />Beauty</label></td>
+							<td><label><input type="checkbox" name="sp" value="cat000285" />Beauty</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sp" data="The Man's Store" value="cat000470" />The Man's Store</label></td>
+							<td><label><input type="checkbox" name="sp" value="cat000470" />The Man's Store</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sp" data="NM Kid" value="cat5160748" />NM Kids</label></td>
+							<td><label><input type="checkbox" name="sp" value="cat5160748" />NM Kids</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sp" data="Home" value="cat000553" />Home</label></td>
+							<td><label><input type="checkbox" name="sp" value="cat000553" />Home</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="sp" data="Gifts" value="cat000672" />Gifts</label></td>
+							<td><label><input type="checkbox" name="sp" value="cat000672" />Gifts</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 					</table>
@@ -267,43 +266,43 @@
 							<td>Removed</td>
 						</tr>
 						<tr>
-                            <td><label><input type="checkbox" name="dt" data="Women's Apparel" value="cat44710738" />Women's Apparel</label></td>
+                            <td><label><input type="checkbox" name="dt" value="cat44710738" />Women's Apparel</label></td>
                             <td><input type="checkbox" name="dtstate" value="3" /></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="dt" data="Shoes" value="cat44710739" />Shoes</label></td>
+                            <td><label><input type="checkbox" name="dt" value="cat44710739" />Shoes</label></td>
                             <td><input type="checkbox" name="dtstate" value="3" /></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="dt" data="Handbags" value="cat44710740" />Handbags</label></td>
+                            <td><label><input type="checkbox" name="dt" value="cat44710740" />Handbags</label></td>
                             <td><input type="checkbox" name="dtstate" value="3" /></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="dt" data="Jewelry & Accessories" value="cat44710741" />Jewelry & Accessories</label></td>
+                            <td><label><input type="checkbox" name="dt" value="cat44710741" />Jewelry & Accessories</label></td>
                             <td><input type="checkbox" name="dtstate" value="3" /></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="dt" data="Beauty" value="cat44710743" />Beauty</label></td>
+                            <td><label><input type="checkbox" name="dt" value="cat44710743" />Beauty</label></td>
                             <td><input type="checkbox" name="dtstate" value="3" /></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="dt" data="The Man's Store" value="cat44710744" />The Man's Store</label></td>
+                            <td><label><input type="checkbox" name="dt" value="cat44710744" />The Man's Store</label></td>
                             <td><input type="checkbox" name="dtstate" value="3" /></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="dt" data="NM Kids" value="cat44710745" />NM Kids</label></td>
+                            <td><label><input type="checkbox" name="dt" value="cat44710745" />NM Kids</label></td>
                             <td><input type="checkbox" name="dtstate" value="3" /></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="dt" data="Home" value="cat44710746" />Home</label></td>
+                            <td><label><input type="checkbox" name="dt" value="cat44710746" />Home</label></td>
                             <td><input type="checkbox" name="dtstate" value="3" /></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="dt" data="Gifts" value="cat44710747" />Gifts</label></td>
+                            <td><label><input type="checkbox" name="dt" value="cat44710747" />Gifts</label></td>
                             <td><input type="checkbox" name="dtstate" value="3" /></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="dt" data="Sale" value="cat46620744" />Sale</label></td>
+                            <td><label><input type="checkbox" name="dt" value="cat46620744" />Sale</label></td>
                             <td><input type="checkbox" name="dtstate" value="3" /></td>
                         </tr>
 					</table>
@@ -337,14 +336,35 @@
 					<input type="button" onClick="addOther();" value="Add" />
 				</div>
 				
-				<h3>Dashes</h3>
+				<h3>Midday Dash</h3>
 				<div>
 					<label>Dash Date: <input type="text" id="dashdate" size="5" title="Missing dash date" /></label><br />
 					<label>After Dash Promo 4: <input type="text" id="afterdash1" title="Missing after dash promo 4" value="Removed" /></label><br />
 					<label>After Dash Promo 4p1: <input type="text" id="afterdash2" title="Missing after dash promo 4p1" value="Removed" /></label><br />
-					<label><input type="checkbox" id="dashextended" />Extended</label><br />
-					<input type="button" onClick="addDash(0);" value="Add Midday Dash" />
-					<input type="button" onClick="addDash(1);" value="Add Twilight Dash" />
+					<input type="button" onClick="addDash();" value="Add Midday Dash" />
+				</div>
+                
+                <h3>Checkout</h3>
+				<div>
+					<table>
+						<tr>
+							<td></td>
+							<td>Removed</td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="co" value="checkout_spc/promo_areas/checkout_top2" />Top Banner</label></td>
+                            <td><input type="checkbox" name="costate" value="3" /></td>
+						</tr>
+						<tr>
+                            <td><label><input type="checkbox" name="co" value="checkout/shoppingcart/promo/cartPromo" />Promo</label></td>
+                            <td><input class="hide" type="checkbox" name="costate" value="3" /></td>
+                        </tr>
+                        <tr>
+                            <td><label><input type="checkbox" name="co" value="checkout/easycart/minicart_banner" />Mini Cart</label></td>
+                            <td><input class="hide" type="checkbox" name="costate" value="3" /></td>
+						</tr>
+					</table>
+					<input type="button" onClick="addCheckout()" value="Add Checkout" />
 				</div>
 			</div>
 		</form>
@@ -352,17 +372,28 @@
 	
 	<div id="editpatch" title="Edit Patch">
 		<form method="post">
-			<div id="editinfo"></div>
 			<table>
-				<tr>
-					<td><label>Date:<br />
-					<input type="text" id="editdate" /></label></td>
-					<td><label>Time:<br />
-					<input type="text" id="edittime" /></label></td>
-				</tr>
-			</table>
-			<label>Folder Name:<br />
-			<input type="text" id="editfolder" /></label>
+            	<tbody id="editinfo"></tbody>
+                <tbody>
+                    <tr>
+                        <td><label>Date:
+                        <input type="text" id="editdate" /></label></td>
+                        <td><label>Time:
+                        <input type="text" id="edittime" /></label></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><label>Folder Name:
+                        <input type="text" id="editfolder" /></label></td>
+                    </tr>
+                    <tr>
+                        <td width="61%"><label>Remove Combined Patch:
+                            <select id="editremove"></select>
+                        </label></td>
+                        <td width="39%"><label>Use Test1:
+                        <input type="checkbox" id="edittest1" /></label></td>
+                    </tr>
+                </tbody>
+            </table>
 		</form>
 	</div>
 	
@@ -370,15 +401,15 @@
 		<form method="post">
 			<table>
 				<tr>
-					<td colspan="2"><em style="color: red">--------------------WARNING--------------------<br />
+					<td colspan="2"><em style="color: red">----------------------WARNING----------------------<br />
 					Changing any of the below may cause the asset to generate incorrectly!</em></td>
 				</tr>
 				<tr>
-					<td colspan="2"><label>Name<br />
+					<td colspan="2"><label>Name:
 					<input type="text" id="editname"></label></td>
 				</tr>
 				<tr>
-					<td><label>Type:<br />
+					<td width="50%"><label>Type:
 						<select id="edittype">
 							<option value="1">Header Promo</option>
 							<option value="2">Homepage</option>
@@ -398,18 +429,18 @@
                             <option value="17">Entry Page</option>
 						</select>
 					</label></td>
-					<td><label>State:<br />
+					<td width="50%"><label>State:
 						<select id="editstate">
-							<option value=""></option>
+							<option value="0"></option>
 							<option value="1">Turn On</option>
 							<option value="2">Turn Off</option>
 							<option value="3">Removed</option>
-							<option value="4">Dash (Temporary)</option>
+							<option value="4">Link</option>
 						</select>
 					</label></td>
 				</tr>
 				<tr>
-					<td colspan="2"><label>Path:<br />
+					<td colspan="2"><label>Path:
 					<input type="text" id="editpath"></label></td>
 				</tr>
 			</table>
