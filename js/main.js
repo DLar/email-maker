@@ -1,6 +1,4 @@
 $(document).ready(function() {
-	$('#app').hide();
-	
 	$('#patchdate, #dashdate, #editdate').datepicker({
 		dateFormat: 'm/d'
 	}).not('#editdate').datepicker('setDate', today);
@@ -11,33 +9,37 @@ $(document).ready(function() {
 	
 	$('input[type=text]').blur(function() {
 		$(this).val($.trim($(this).val()));
+		
+		if ($(this).attr('id') != 'patchtime' && $(this).attr('id') != 'approvaltime' && $(this).attr('id') != 'edittime' && $(this).attr('id') != 'editname') {
+			$(this).val($(this).val().replace(':', ''));
+		}
 	});
 	
 	$('#oncall').change(function() {
-		if(build === 1) 
-			buildEOD();
+		if (build === 1) 
+			buildOutput();
 	});
 	$('#approvaltime').blur(function() {
-		if(build === 0) 
+		if (build === 0) 
 			buildOutput();
 	});
 	
 	$('#hp1').change(function() {
-		if($(this).is(':checked'))
+		if ($(this).is(':checked'))
 			$('#hpromo1').val($(this).val());
 		else
 			$('#hpromo1').val('');
 	});
 	
 	$('#hp2').change(function() {
-		if($(this).is(':checked'))
+		if ($(this).is(':checked'))
 			$('#hpromo2').val($(this).val());
 		else
 			$('#hpromo2').val('');
 	});
 	
 	$('#eligibility').change(function() {
-		if($(this).is(':checked'))
+		if ($(this).is(':checked'))
 			$('#poptilename').val($(this).val());
 		else
 			$('#poptilename').val('');
@@ -51,7 +53,7 @@ $(document).ready(function() {
 	$('input[name=otherstate], input[name=patchcutline]').click(function() {
 		var check = $(this).is(':checked');
 		$('input[name=' + $(this).attr('name') + ']').prop('checked', false);
-		if(check) {
+		if (check) {
 			$(this).prop('checked', true);
 		}
 	});
@@ -107,6 +109,8 @@ $(document).ready(function() {
 				patches[currentPatch].date = editdate.value;
 				patches[currentPatch].time = edittime.value;
 				patches[currentPatch].folder = editfolder.value;
+				patches[currentPatch].hpromo = edithpromo.value;
+				patches[currentPatch].homepage = edithomepage.value;
 				
 				buildOutput();
 			},
@@ -161,8 +165,8 @@ $(document).ready(function() {
 		var temp = '', temp2 = '<option value="-1"></option>';
 		var info = patches[currentPatch].info;
 		for (var i = 0; i < info.length; i++) {
-			temp += '<tr><td colspan="2"><label>Name:<input type="text" name="editname" value="' + info[i].name + '" /></label></td></tr>' +
-				'<tr><td colspan="2"><label>Merchant:<input type="text" name="editmerchant" value="' + info[i].merchant + '" /></label></td></tr>' +
+			temp += '<tr><td><label>Name:<input type="text" name="editname" value="' + info[i].name + '" /></label></td>' +
+				'<td><label>Merchant:<input type="text" name="editmerchant" value="' + info[i].merchant + '" /></label></td></tr>' +
 				'<tr><td colspan="2">Cutlines: <label><input type="checkbox" name="editlive" value="1" ' + ((info[i].cutline === 1) ? 'checked ' : '') + '/>Live</label> ' +
 				'<label><input type="checkbox" name="editremove" value="2" ' + ((info[i].cutline === 2) ? 'checked ' : '') + '/>Remove</label></td></tr>';
 			
@@ -176,6 +180,8 @@ $(document).ready(function() {
 		editdate.value = patches[currentPatch].date;
 		edittime.value = patches[currentPatch].time;
 		editfolder.value = patches[currentPatch].folder;
+		edithpromo.value = patches[currentPatch].hpromo;
+		edithomepage.value = patches[currentPatch].homepage;
 		
 		$('#editpatch').dialog('open');
 	});
@@ -203,8 +209,8 @@ var build = 0;
 /*
 Asset Types:
 1 = Header Promo
-2 = Homepage
-3 = CUSP
+3 = Homepage
+4 = CUSP
 5 = Designer Index
 6 = Silo Main
 7 = Silo Promo
@@ -216,9 +222,10 @@ Asset Types:
 13 = Silo Banner
 14 = Nav Aux
 15 = Video
-16 = InSite
+16 = Magazine
 17 = Entry Page
-18 = Checkout
+18 = Search Redirect
+19 = Checkout
 
 Cutlines:
 1 = Live
@@ -236,8 +243,10 @@ function Patch(date, time, folder, info, test1) {
 	this.time = time;
 	this.folder = folder;
 	this.info = [info];
-	this.assets = [];
 	this.test1 = test1 || false;
+	this.assets = [];
+	this.hpromo = '';
+	this.homepage = '';
 }
 
 function Info(name, merchant, cutline) {
@@ -282,7 +291,7 @@ function addPatch() {
 		$('#patchtime').tooltip('enable').focus();
 		return;
 	}
-	if (folder === '' || /\W/.test(folder)) {
+	if (/\W/.test(folder)) {
 		$('#patchfolder').tooltip('enable').focus();
 		return;
 	}
@@ -339,8 +348,10 @@ function noPatch() {
 }
 
 function addAssets(assets) {
-	patches[currentPatch].assets = patches[currentPatch].assets.concat(assets);
-	patches[currentPatch].assets = patches[currentPatch].assets.sort(sortAssets);
+	if (assets.length > 0) {
+		patches[currentPatch].assets = patches[currentPatch].assets.concat(assets);
+		patches[currentPatch].assets = patches[currentPatch].assets.sort(sortAssets);
+	}
 }
 
 function sortAssets(a, b) {
@@ -361,7 +372,7 @@ function sortAssets(a, b) {
 function combinePatches() {
 	
 	if (patches.length < 2) {
-		$('#combinepatches').tooltip('enable').focus();
+		$('#combinepatches').tooltip('option', 'content', 'Need more patches').tooltip('enable').focus();
 		return;
 	}
 	
@@ -373,6 +384,10 @@ function combinePatches() {
 				currentAsset = -1;
 				patches[i].info = patches[i].info.concat(patches[j].info);
 				addAssets(patches[j].assets);
+				if (patches[j].homepage !== '')
+					patches[i].homepage = patches[j].homepage;
+				if (patches[j].hpromo !== '')
+					patches[i].hpromo = patches[j].hpromo;
 				patches.splice(j, 1);
 				j--;
 				combined++;
@@ -383,26 +398,24 @@ function combinePatches() {
 	buildOutput();
 	
 	if (combined > 0)
-		alert('Successfully combined ' + combined + ' patches!');
+		$('#combinepatches').tooltip('option', 'content', 'Combined ' + combined + ' patches').tooltip('enable').focus();
 	else
-		$('#combinepatches').tooltip('enable').focus();
+		$('#combinepatches').tooltip('option', 'content', 'No patches combined').tooltip('enable').focus();
 }
 
 function loadPrevious() {
 	importJSON(localStorage.getItem('previous-json'));
 }
 
-function loadFile() {
-	var file = FILE.files[0];
-	if (file) {
-		var reader = new FileReader();
-		reader.onload = function() {
-			importJSON(reader.result);
-		};
-		reader.readAsText(file);
-	}
-	else {
-		$('#FILE').tooltip('enable').focus();
+function loadFiles(files) {
+	if (files.length > 0) {
+		for (var i = 0; i < files.length; i++) {
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				importJSON(e.target.result);
+			};
+			reader.readAsText(files[i]);
+		}
 	}
 }
 
@@ -435,8 +448,7 @@ function exportJSON() {
 }
 
 function clearForm() {
-	form1.reset();
-	$('#patchdate, #dashdate').datepicker('setDate', today);
+	$('#form1 input[type=text]').not('.no-reset input').val('');
 }
 
 function selectText(containerid) {
@@ -450,12 +462,42 @@ function selectText(containerid) {
 		range = document.body.createTextRange();
 		range.moveToElementText(container);
 		range.select();
+		document.execCommand("copy");
 	}
 	else if (window.getSelection) {	
 		range = document.createRange();
 		range.selectNodeContents(container);
 		window.getSelection().removeAllRanges();
 		window.getSelection().addRange(range);
+		document.execCommand("copy");
+	}
+}
+
+function addHeaderPromo() {
+	if (currentPatch === -1) {
+		noPatch();
+		return;
+	}
+	
+	var launch = aemhpromo.value;
+	if (launch === '') {
+		$('#aemhpromo').tooltip('enable').focus();
+		return;
+	}
+	patches[currentPatch].hpromo = launch;
+	
+	var hpromo = '';
+	var hpromos = document.getElementsByName('hpromo');
+	for (var i = 0; i < hpromos.length; i++) {
+		if (hpromos[i].value !== '' && hpromo === '')
+			hpromo = hpromocountry.options[hpromocountry.selectedIndex].textContent + ': ' + hpromos[i].value;
+		else if (hpromos[i].value !== '' && hpromo !== '')
+			hpromo += ' <span style="color:red">+</span> ' + hpromos[i].value;
+	}
+	
+	if (hpromo !== '') {
+		addAssets([new Asset(hpromo, 1, hpromocountry.value)]);
+		buildOutput();
 	}
 }
 
@@ -465,35 +507,23 @@ function addHomepage() {
 		return;
 	}
 	
+	var launch = aemhmpg.value;
+	if (launch === '') {
+		$('#aemhmpg').tooltip('enable').focus();
+		return;
+	}
+	patches[currentPatch].homepage = launch;
+	
 	var assets = [];
 	
-	var hpromo = '';
-	var hpromos = document.getElementsByName('hpromo');
-	for (var i = 0; i < hpromos.length; i++) {
-		if (hpromos[i].value !== '' && hpromo === '')
-			hpromo = hpromos[i].value;
-		else if (hpromos[i].value !== '' && hpromo !== '')
-			hpromo += ' <span style="color:red">+</span> ' + hpromos[i].value;
-	}
-	if (hpromo !== '') {
-		assets.push(new Asset(hpromo, 1, 'cat000000'));
+	var hmpg = document.getElementsByName('hmpg');
+	for (i = 0; i < hmpg.length; i++) {
+		if (hmpg[i].value !== '')
+			assets.push(new Asset((hmpg[i].parentElement.textContent + hmpg[i].value), 3, "cat000000", 0));
 	}
 	
-	var hpmg = document.getElementsByName('hpmg');
-	var state;
-	for (i = 0; i < hpmg.length; i++) {
-		if (hpmg[i].value !== '') {
-			state = (hpmg[i].parentElement.textContent === "Main 1P: ") ? 4 : 0;
-			assets.push(new Asset((hpmg[i].parentElement.textContent + hpmg[i].value), 2, hpmg[i].getAttribute('path'), state));
-		}
-	}
-	
-	if (assets.length > 0) {
-		addAssets(assets);
-		buildOutput();
-	}
-	else
-		$('#addhomepage').tooltip('enable').focus();
+	addAssets(assets);
+	buildOutput();
 }
 
 function addDesignerIndex() {
@@ -530,7 +560,7 @@ function addCUSP() {
 	for (var i = 0; i < selections.length; i++) {
 		if (selections[i].checked) {
 			state = (selections2[i].checked) ? parseInt(selections2[i].value) : 0;
-			assets.push(new Asset(selections[i].parentElement.textContent, 3, selections[i].value, state));
+			assets.push(new Asset(selections[i].parentElement.textContent, 4, selections[i].value, state));
 		}
 	}
 	
@@ -633,12 +663,12 @@ function addOther() {
 		$('#othername').tooltip('enable').focus();
 		return;
 	}
-	if (catid === '' || catid === 'cat') {
+	if (catid === '') {
 		$('#othercat').tooltip('enable').focus();
 		return;
 	}
-	
-	addAssets(new Asset(name, type, catid, state));
+		
+	addAssets([new Asset(name, type, catid, state)]);
 	buildOutput();
 }
 
@@ -665,8 +695,7 @@ function addPopTile(type) {
 	else if (type !== 10)
 		folder += '/' + folder;
 	
-	addAssets(new Asset(name, type, folder));
-	
+	addAssets([new Asset(name, type, folder)]);
 	buildOutput();
 }
 
@@ -697,8 +726,8 @@ function addDash() {
 	
 	patches.push(new Patch(date, time, folder, new Info('Midday Dash (Start)', 'Chandler')));
 	currentPatch = patches.length - 1;
-	assets.push(new Asset('Promo 4: Midday Dash', 2, 'cat000000/r_promo5', 4));
-	assets.push(new Asset('Promo 4p1: Dash Sign-Up', 2, 'cat000000/r_promo5p1', 4));
+	assets.push(new Asset('Promo 4: Midday Dash', 3, 'cat000000/r_promo5', 4));
+	assets.push(new Asset('Promo 4p1: Dash Sign-Up', 3, 'cat000000/r_promo5p1', 4));
 	assets.push(new Asset('Midday Dash (Start)', 12, 'cat21000740'));
 	assets.push(new Asset('Midday Dash', 9, 'MiddayDash/MiddayDash_popup'));
 	addAssets(assets);
@@ -709,8 +738,8 @@ function addDash() {
 	
 	patches.push(new Patch(date, time, folder, new Info('Midday Dash (Over)', 'Chandler'), true));
 	currentPatch++;
-	assets.push(new Asset(('Promo 4: ' + after1), 2, 'cat000000/r_promo5', 4));
-	assets.push(new Asset(('Promo 4p1: ' + after2), 2, 'cat000000/r_promo5p1', 4));
+	assets.push(new Asset(('Promo 4: ' + after1), 3, 'cat000000/r_promo5', 4));
+	assets.push(new Asset(('Promo 4p1: ' + after2), 3, 'cat000000/r_promo5p1', 4));
 	assets.push(new Asset('Midday Dash (Over)', 12, 'cat21000740', 4));
 	addAssets(assets);
 	
@@ -730,7 +759,7 @@ function addCheckout() {
 	for (var i = 0; i < selections.length; i++) {
 		if (selections[i].checked) {
 			state = (selections2[i].checked) ? parseInt(selections2[i].value) : 0;
-			assets.push(new Asset(selections[i].parentElement.textContent, 18, selections[i].value, state));
+			assets.push(new Asset(selections[i].parentElement.textContent, 19, selections[i].value, state));
 		}
 	}
 	
@@ -738,25 +767,24 @@ function addCheckout() {
 	buildOutput();
 }
 
-function switchApp() {
-	build = 0;
-	$('#app').hide();
-	$('#eod').show();
-	buildOutput();
-}
-	
-function switchEOD() {
-	build = 1;
-	$('#eod').hide();
-	$('#app').show();
+
+function switchBuild(button) {
+	if (build === 0) {
+		build = 1;
+		button.value = "Generate Approval";
+	}
+	else if (build === 1) {
+		build = 0;
+		button.value = "Generate EOD";
+	}
 	buildOutput();
 }
 
 function buildOutput() {
 	
 	//Debugging
-	console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
-	console.log(patches);
+	//console.log('Patch: ' + currentPatch + ' Asset: ' + currentAsset);
+	//console.log(patches);
 	
 	if (patches.length < 1) {
 		emailsub.innerHTML = '';
@@ -770,7 +798,7 @@ function buildOutput() {
 	var html = '<div id="patchlist">';
 	var assets, href, temp; // For holding temporary information (usually constructed hrefs)
 	var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-	var spacer = '<span style="color: red">______________________________________________________________________</span><br /><br />';
+	var spacer = '<span style="color: red">______________________________________________________________________</span><br><br>';
 	
 	if (build === 0) {
 		if (patches[0].info[0].name === 'Midday Dash (Start)')
@@ -779,13 +807,13 @@ function buildOutput() {
 			temp = patches[0].time;
 		
 		prehtml += '<strong>The <span style="color: red">' + patches[0].date + ' (' + temp + ')</span> Patches are posted online at: ' +
-			'<a href="http://wn.ref1.nmg/index.jsp?mobilePreview=1">http://wn.ref1.nmg/index.jsp?mobilePreview=1</a><br />' +
+			'<a href="https://wn.ref1.nmg/index.jsp?mobilePreview=1">https://wn.ref1.nmg/index.jsp?mobilePreview=1</a><br>' +
 			'Please proof it and <span style="color: red">respond</span> with <span style="color: red">changes</span> or <span style="color: red">your approval by ' +
-			((approvaltime.value === '') ? approvaltime.placeholder : (approvaltime.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate())) + '</strong></span><br />' +
-			'If you are getting the "category not found page" please do one of the following to check your link:<br />' +
-			'<ol><li>Replace the "wn.ref1.nmg" in the url with www.neimanmarcus.com" or</li>' +
+			((approvaltime.value === '') ? approvaltime.placeholder : (approvaltime.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate())) + '</strong></span><br>' +
+			'If you are getting the "category not found page" please do one of the following to check your link:<br>' +
+			'<ol><li>Replace the "wn.ref1.nmg" in the url with "www.neimanmarcus.com" or</li>' +
 			'<li>Do step 1 again and then add "&cacheCheckSeconds=1" at the end of the url</li>' +
-			'<li>Or move item from Temp Folder.</li></ol><br />';
+			'<li>Or move item from Temp Folder.</li></ol><br>';
 		
 		temp = 'The ' + patches[0].date + ' (' + temp + ') Patches are Ready for Approvals by ' + ((approvaltime.value === '') ? approvaltime.placeholder : approvaltime.value) + ' Today';
 	}
@@ -799,7 +827,7 @@ function buildOutput() {
 			temp += "Tomorrow's";
 		temp += " Patches Are Ready to Schedule";
 		
-		prehtml += 'Producers,<br />' + temp + '!<br />';
+		prehtml += 'Producers,<br>' + temp + '!<br>';
 	}
 	emailsub.innerHTML = temp;
 	
@@ -817,267 +845,257 @@ function buildOutput() {
 			href = 'www.neimanmarcus.com';
 		
 		html += '<div patch="' + i + '">' + spacer;
-		if (build === 1)
-			html += '<span style="color: gray"><strong>Folder: ' + patches[i].folder + '</strong></span><br /><br />';
+		if (build === 1) {
+			html += '<span style="color: gray"><strong>';
+			
+			//Needs Optimizing
+			if (patches[i].hpromo !== '')
+				html += 'AEM Header Promos: ' + patches[i].hpromo + '<br>';
+			if (patches[i].homepage !== '')
+				html += 'AEM Homepage: ' + patches[i].homepage + '<br>';
+			if (patches[i].folder !== '')
+				html += 'Category Folder: ' + patches[i].folder + '<br>';
+			
+			html += '</strong></span><br>';
+		}
 		html += '<span style="color: red"><strong>' + patches[i].date + ' (' + patches[i].time + ') ';
 		temp = '';
 		for (var k = 0; k < patches[i].info.length; k++) {
-			prehtml += '<br />' + patches[i].info[k].name + ': ' + patches[i].info[k].merchant;
+			prehtml += '<br>' + patches[i].info[k].name + ': ' + patches[i].info[k].merchant;
 			html += ((k === 0) ? patches[i].info[k].name : (', ' + patches[i].info[k].name));
 			if (patches[i].info[k].cutline === 1 || patches[i].info[k].cutline === 2)
-				temp += '<span style="color: orange"><strong>(' + patches[i].info[k].name + ' - Cutlines will go ' + ((patches[i].info[k].cutline === 1) ? 'LIVE' : 'DOWN') + ' at this time)</strong></span><br />';
+				temp += '<span style="color: orange"><strong>(' + patches[i].info[k].name + ' - Cutlines will go ' + ((patches[i].info[k].cutline === 1) ? 'LIVE' : 'DOWN') + ' at this time)</strong></span><br>';
 		}
-		html += '</strong></span><br />' + temp + '<br />';
+		html += '</strong></span><br>' + temp;
 		
 		for (var j = 0; j < assets.length; j++) {
+			temp = (j === 0 || assets[j-1].type !== assets[j].type) ? true : false;
 			switch (assets[j].type) {
 				case 1: // Header Promo
-					if (j === 0) {
-						html += '<strong>Homepage</strong> <a href="http://' + href + '/index.jsp?mobilePreview=1">http://' + href + '/index.jsp?mobilePreview=1</a><br />' +
-							'Click link above to view entire desktop &amp; mobile site<br />';
+					if (temp) {
+						temp = 'https://www.neimanmarcus.com/' + ((build === 0) ? '?ECMPreview=' + assets[j].path + '-siteticker%7C' + patches[i].hpromo : 'setcookiehpdt');
+						html += '<br><strong>Header Promos:</strong><br><a href="' + temp + '">' + temp + '</a><br>' +
+							'Please ensure you are in the correct country when viewing the header promo<br>';
 					}
 					
-					temp = 'http://' + href + '/category/cat000000/r_header_promo.html';
-					html += '<span asset="' + j + '">Header Promo: ' + assets[j].name + '<br />' +
-							'<a href="' + temp + '">' + temp + '</a><br />';
-					temp = 'http://' + href + '/category/cat000000/r_mobile_header_promo.html';
-					html += 'Mobile Headerpromo: ' + assets[j].name + '<br />' +
-							'<a href="' + temp + '">' + temp + '</a></span><br />';
+					html += '<span asset="' + j + '">' + assets[j].name + '</span><br>';
 					
 					break;
 					
-				case 2: // Homepage
-					if (j === 0) {
-						html += '<strong>Homepage</strong> <a href="http://' + href + '/index.jsp?mobilePreview=1">http://' + href + '/index.jsp?mobilePreview=1</a><br />' +
-							'Click link above to view entire desktop &amp; mobile site<br />';
+				case 3: // Homepage
+					if (temp) {
+						temp = 'https://www.neimanmarcus.com/' + ((build === 0) ? '?ECMPreview=' + patches[i].homepage : 'setcookiehpdt?mobilePreview=1');
+						html += '<br><strong>Homepage:</strong><br><a href="' + temp + '">' + temp + '</a><br>' +
+							'Please ensure you are in the correct country when viewing the homepage<br>';
 					}
 					
-					html += '<span asset="' + j + '">' + assets[j].name;
-					if (assets[j].state === 4) {
-						temp = 'http://' + href + '/category/' + assets[j].path + '.html';
-						html += ' <a href="' + temp + '">' + temp + '</a></span><br />';
-					}
-					else
-						html += '</span><br />';
+					html += '<span asset="' + j + '">' + assets[j].name + '</span><br>';
 					
 					break;
 					
-				case 3: // CUSP
-					if (j === 0)
-						html += '<strong>CUSP:</strong><br />';
-					else if (assets[j-1].type !== 3)
-						html += '<br /><strong>CUSP:</strong><br />';
+				case 4: // CUSP
+					if (temp)
+						html += '<br><strong>CUSP:</strong><br>';
 					
-					temp = (assets[j].path === 'r_cusp_promo') ? 'http://' + href + '/CUSP/cat58930763/c.cat' : 'http://' + href + '/category/cat58930763/' + assets[j].path + '.html';
+					temp = (assets[j].state === 4) ? 'https://' + href + '/category.jsp?itemId=cat58930763' : 'https://' + href + '/category/' + assets[j].path + '.html';
 					
 					if (assets[j].state === 3) // Removed
-						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br>';
 					else
-						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 5: // Designer Index
-					if (j === 0)
-						html += '<strong>Designer Indexes:</strong><br />';
-					else if (assets[j-1].type !== 5)
-						html += '<br /><strong>Designer Indexes:</strong><br />';
+					if (temp)
+						html += '<br><strong>Designer Indexes:</strong><br>';
 					
-					temp = 'http://' + href + '/category/' + assets[j].path + '.html';
+					temp = 'https://' + href + '/category/' + assets[j].path + '.html';
 					
 					if (assets[j].state === 3) // Removed
-						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br>';
 					else
-						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 6: // Silo Mains
-					if (j === 0)
-						html += '<strong>Silo Mains:</strong><br />';
-					else if (assets[j-1].type !== 6)
-						html += '<br /><strong>Silo Mains:</strong><br />';
+					if (temp)
+						html += '<br><strong>Silo Mains:</strong><br>';
 					
-					temp = (assets[j].path === 'cat980731') ? 'http://' + href + '/Sale/' + assets[j].path + '/c.cat' : 'http://' + href + '/category/' + assets[j].path + '/r_main.html';
+					temp = (assets[j].state === 4) ? 'https://' + href + '/category.jsp?itemId=' + assets[j].path : 'https://' + href + '/category/' + assets[j].path + '/r_main.html';
 					html += '<span asset="' + j + '">' + assets[j].name;
 					if (assets[j].state === 1) // Turn On
-						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br>';
 					else if (assets[j].state === 2) // Turn Off
-						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br />';
+						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br>';
 					else
-						html += ': <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 7: // Silo Promos
-					if (j === 0)
-						html += '<strong>Silo Promos:</strong><br />';
-					else if (assets[j-1].type !== 7)
-						html += '<br /><strong>Silo Promos:</strong><br />';
+					if (temp)
+						html += '<br><strong>Silo Promos:</strong><br>';
 					
-					temp = 'http://' + href + '/category.jsp?itemId=' + assets[j].path + '&parentId=&siloId=' + assets[j].path;
+					temp = 'https://' + href + '/category/' + assets[j].path + '/r_promo1.html';
 					html += '<span asset="' + j + '">' + assets[j].name;
 					if (assets[j].state === 3) // Removed
-						html += ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br>';
 					else
-						html += ': <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 8: // Drawer Tickers
-					if (j === 0)
-						html += '<strong>Drawer Tickers:</strong><br />';
-					else if (assets[j-1].type !== 8)
-						html += '<br /><strong>Drawer Tickers:</strong><br />';
+					if (temp)
+						html += '<br><strong>Drawer Tickers:</strong><br>';
 					
-					temp = 'http://' + href + '/category/' + assets[j].path + '/r_main_drawer_promo.html';
+					temp = 'https://' + href + '/category/' + assets[j].path + '/r_main_drawer_promo.html';
 					
 					if (assets[j].state === 3) // Removed
-						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br>';
 					else
-						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 9: // Popups
-					if (j === 0)
-						html += '<strong>Popups:</strong><br />';
-					else if (assets[j-1].type !== 9)
-						html += '<br /><strong>Popups:</strong><br />';
+					if (temp)
+						html += '<br><strong>Popups:</strong><br>';
 					
-					temp = 'http://' + href + '/category/popup/' + assets[j].path + '.html';
-					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+					temp = 'https://' + href + '/category/popup/' + assets[j].path + '.html';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 10: // Promo Tiles
-					if (j === 0)
-						html += '<strong>Promo Tiles:</strong><br />';
-					else if (assets[j-1].type !== 10)
-						html += '<br /><strong>Promo Tiles:</strong><br />';
+					if (temp)
+						html += '<br><strong>Promo Tiles:</strong><br>';
 					
-					temp = 'http://' + href + '/category/promotiles/' + assets[j].path + '.html';
-					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+					temp = 'https://' + href + '/category/promotiles/' + assets[j].path + '.html';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 11: // Jump Pages (F0)
-					if (j === 0)
-						html += '<strong>Jump Pages (F0):</strong><br />';
-					else if (assets[j-1].type !== 11)
-						html += '<br /><strong>Jump Pages (F0):</strong><br />';
+					if (temp)
+						html += '<br><strong>Jump Pages (F0):</strong><br>';
 					
-					temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
-					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+					temp = 'https://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 12: // Graphic Headers
-					if (j === 0)
-						html += '<strong>Graphic Headers:</strong><br />';
-					else if (assets[j-1].type !== 12)
-						html += '<br /><strong>Graphic Headers:</strong><br />';
+					if (temp)
+						html += '<br><strong>Graphic Headers:</strong><br>';
 					
 					if (assets[j].state === 4 && build === 0)
-						temp = 'http://' + href + '/category/' + assets[j].path + '/r_head_long.html';
+						temp = 'https://' + href + '/category/' + assets[j].path + '/r_head_long.html';
 					else
-						temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+						temp = 'https://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					
 					html += '<span asset="' + j + '">' + assets[j].name;
 					if (assets[j].state === 1) // Turn On
-						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br>';
 					else if (assets[j].state === 2 && build === 0) // Turn Off Test
-						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br />';
+						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br>';
 					else if (assets[j].state === 2 && build === 1) // Turn Off Live
-						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br>';
 					else
-						html += ': <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 13: // Silo Banners
-					if (j === 0)
-						html += '<strong>Silo Banners:</strong><br />';
-					else if (assets[j-1].type !== 13)
-						html += '<br /><strong>Silo Banners:</strong><br />';
+					if (temp)
+						html += '<br><strong>Silo Banners:</strong><br>';
 					
-					temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					if (assets[j].state === 4 && build === 0)
+						temp = 'https://' + href + '/category/' + assets[j].path + '/r_head_long.html';
+					else
+						temp = 'https://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					
 					html += '<span asset="' + j + '">' + assets[j].name;
 					if (assets[j].state === 1) // Turn On
-						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br>';
 					else if (assets[j].state === 2 && build === 0) // Turn Off Test
-						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br />';
+						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br>';
 					else if (assets[j].state === 2 && build === 1) // Turn Off Live
-						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br>';
 					else
-						html += ': <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 14: // Nav Aux
-					if (j === 0)
-						html += '<strong>Nav Aux:</strong><br />';
-					else if (assets[j-1].type !== 14)
-						html += '<br /><strong>Nav Aux:</strong><br />';
+					if (temp)
+						html += '<br><strong>Nav Aux:</strong><br>';
 					
-					temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					temp = 'https://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
 					html += '<span asset="' + j + '">' + assets[j].name;
 					if (assets[j].state === 1) // Turn On
-						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <span style="color: green">(Turn On)</span> <a href="' + temp + '">' + temp + '</a></span><br>';
 					else if (assets[j].state === 2 && build === 0) // Turn Off Test
-						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br />';
+						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + '</span><br>';
 					else if (assets[j].state === 2 && build === 1) // Turn Off Live
-						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <span style="color: green">(Turn Off)</span> ' + assets[j].path + ' <a href="' + temp + '">' + temp + '</a></span><br>';
 					else
-						html += ': <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 15: // Videos
-					if (j === 0)
-						html += '<strong>Videos:</strong><br />';
-					else if (assets[j-1].type !== 15)
-						html += '<br /><strong>Videos:</strong><br />';
+					if (temp)
+						html += '<br><strong>Videos:</strong><br>';
 					
-					temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
-					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+					temp = 'https://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
-				case 16: // InSite
-					if (j === 0)
-						html += '<strong>InSite:</strong><br />';
-					else if (assets[j-1].type !== 16)
-						html += '<br /><strong>InSite:</strong><br />';
+				case 16: // Magazine
+					if (temp)
+						html += '<br><strong>Magazine:</strong><br>';
 					
-					temp = 'http://www.neimanmarcus.com/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
-					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+					temp = 'https://www.neimanmarcus.com/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
 				case 17: // Entry Pages
-					if (j === 0)
-						html += '<strong>Entry Pages:</strong><br />';
-					else if (assets[j-1].type !== 17)
-						html += '<br /><strong>Entry Pages:</strong><br />';
+					if (temp)
+						html += '<br><strong>Entry Pages:</strong><br>';
 					
-					temp = 'http://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
-					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+					temp = 'https://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
-				case 18: // Checkout
-					if (j === 0)
-						html += '<strong>Checkout:</strong><br />';
-					else if (assets[j-1].type !== 18)
-						html += '<br /><strong>Checkout:</strong><br />';
+				case 18: // Search Redirects
+					if (temp)
+						html += '<br><strong>Search Redirects:</strong><br>';
 					
-					temp = 'http://' + href + '/category/' + assets[j].path + '.html';
+					if (assets[j].state === 4)
+						temp = 'https://' + href + '/category/' + assets[j].path + '/r_head_long.html';
+					else
+						temp = 'https://' + href + '/i/' + assets[j].path + '/c.cat?cacheCheckSeconds=1';
+					
+					html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
+					
+					break;
+					
+				case 19: // Checkout
+					if (temp)
+						html += '<br><strong>Checkout:</strong><br>';
+					
+					temp = 'https://' + href + '/category/' + assets[j].path + '.html';
 					
 					if (assets[j].state === 3) // Removed
-						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <span style="color: green">(Removed)</span> <a href="' + temp + '">' + temp + '</a></span><br>';
 					else
-						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br />';
+						html += '<span asset="' + j + '">' + assets[j].name + ': <a href="' + temp + '">' + temp + '</a></span><br>';
 					
 					break;
 					
@@ -1087,18 +1105,18 @@ function buildOutput() {
 			
 		}
 		
-		html += '<br /></div>';
+		html += '<br></div>';
 	}
 	
-	prehtml += '</span><br />';
+	prehtml += '</span><br>';
 	if (build === 1)
-		prehtml += '<span style="color: purple">Creative: ' + oncall.value + '</span><br />';
-	html += '</div>' + spacer + '<strong>What do the colors mean?</strong><br />' +
-		'<span style="color: green">GREEN: Merchant Action</span> | <span style="color: purple">PURPLE: Creative Contact</span> | <span style="color: orange">ORANGE: Production Action</span> |<br />' +
-		'<span style="color: red">RED: Patch Description</span> | <span style="color: gray">GRAY: Mentos Folder Name</span> | <span style="color: blue">BLUE: Category Link</span><br /><br />' + spacer;
+		prehtml += '<span style="color: purple">Creative: ' + oncall.value + '</span><br>';
+	html += '</div>' + spacer + '<strong>What do the colors mean?</strong><br>' +
+		'<span style="color: green">GREEN: Merchant Action</span> | <span style="color: purple">PURPLE: Creative Contact</span> | <span style="color: orange">ORANGE: Production Action</span> |<br>' +
+		'<span style="color: red">RED: Patch Description</span> | <span style="color: gray">GRAY: Mentos Folder Name</span> | <span style="color: blue">BLUE: Category Link</span><br><br>' + spacer;
 	
 	prehtml = prehtml.replace(/Midday Dash \(Start\): Chandler<br \/>| \(Over\)/g, '');
-	emailbod.innerHTML = prehtml + '<br />' + html;
+	emailbod.innerHTML = prehtml + '<br>' + html;
 	
 	$('#patchlist div[patch=' + currentPatch + ']').addClass('selected').find('span[asset=' + currentAsset + ']').addClass('selected');
 	$('#patchlist a').attr('target', '_blank');
