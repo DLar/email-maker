@@ -6,7 +6,9 @@
 	<script type="text/javascript" src="js/vendor/jquery-2.1.3.min.js"></script>
 	<script type="text/javascript" src="js/vendor/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="js/vendor/FileSaver.min.js"></script>
+	<script type="text/javascript" src="js/lib.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
+	<script type="text/javascript">brand = 'nm';</script>
 	
  	<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
@@ -26,205 +28,153 @@
 			<h2>Options</h2>
 			<label>On Call: 
 				<select id="oncall">
-					<option value="David 214.724.5826">David</option>
-					<option value="Hillary 214.683.7408">Hillary</option>
-					<option value="Anthony 520.971.6068">Anthony</option>
+					<option value="1">David</option>
+					<option value="2">Anthony</option>
+					<option value="3">Kelsey</option>
+					<option value="4">Ronni</option>
 				</select>
 			</label><br>
 			<label>Approval By: <input type="text" maxlength="7" size="7" id="approvaltime" placeholder="ASAP" /></label><br>
 			<input type="button" id="removeselected" onclick="removeSelected()" value="Remove Selected" title="No patches or assets to remove" />
 			<input type="button" id="combinepatches" onclick="combinePatches()" value="Combine Patches" title=" " /><br>
 			<input type="button" onclick="loadPrevious()" value="Load Previous" />
-			<input type="button" onclick="switchBuild(this)" value="Generate EOD" />
+			<input type="button" onclick="switchBuild(this)" value="Generate Schedule" />
 			<input type="button" id="exportfile" onclick="exportJSON()" value="Export" title="Nothing to export" /><br>
 			<label>Import: <input type="file" id="loadfile" onchange="loadFiles(this.files)" title="Empty or invalid JSON file" accept=".json" multiple /></label><br>
 			<input type="button" onclick="clearForm()" value="Clear Text Fields" style="margin-bottom: 10px;" />
 			
-			
 			<div id="accordion">
-				<h3>Add Patch</h3>
+				<h3>Patch</h3>
 				<div class="no-reset">
 					<label>Name: <input type="text" id="patchname" title="Missing patch name" /></label><br>
 					<label>Date: <input type="text" size="5" id="patchdate" title="Missing patch date" /></label>
 					<label>Time: <input type="text" maxlength="9" size="9" id="patchtime" title="Missing patch time" /></label><br>
 					<label>Category Folder: <input type="text" id="patchfolder" /></label><br>
+					<label>Home Launch: <input type="text" id="aemhome" title="Missing homepage launch" /></label><br>
+					<label>Other Launch: <input type="text" id="aemother" title="Missing header promo launch" /></label><br>
 					<label>Merchant: <input type="text" id="patchmerchant" title="Missing merchant name" /></label><br>
 					Cutlines: <label><input type="checkbox" name="patchcutline" value="1" />Live</label>
 					<label><input type="checkbox" name="patchcutline" value="2" />Remove</label><br>
-					<input type="button" id="addpatch" onclick="addPatch()" value="Add Patch" title="Need at least 1 patch before adding any assets" />
+					<input type="button" id="addpatch" onclick="addPatch()" value="Add" title="Need at least 1 patch before adding any assets" />
 				</div>
 				
 				<h3>Header Promos</h3>
 				<div>
-					<label>Country:
-						<select id="hpromocountry">
-							<option value="us">Domestic</option>
-							<option value="row">ROW</option>
-						</select>
-					</label><br>
-					<label>AEM Launch: <input type="text" id="aemhpromo" title="Missing header promo launch" /></label><br>
-					<label>Header Promo 1: <input type="text" id="hpromo1" name="hpromo" /></label>
-					<label><input type="checkbox" id="hp1" value="Free Shipping, Free Returns" />Default</label><br>
-					<label>Header Promo 2: <input type="text" id="hpromo2" name="hpromo" /></label>
-					<label><input type="checkbox" id="hp2" value="PreFall" />Default</label><br>
+					<label>Header Promo 1: <input type="text" name="hpromo" value="Free Shipping, Free Returns" /></label>
+					<label>Header Promo 2: <input type="text" name="hpromo" value="Spring" /></label>
 					<label>Header Promo 3: <input type="text" name="hpromo" /></label><br>
 					<label>Header Promo 4: <input type="text" name="hpromo" /></label><br>
-					<input type="button" onclick="addHeaderPromo()" value="Add Header Promos" />
+					<input type="button" onclick="addTexts('hpromo',1)" value="Add" />
+				</div>
+				
+				<h3>Intl Header Promos</h3>
+				<div>
+					<label>Header Promo 1: <input type="text" name="ihpromo" value="Email Signup" /></label>
+					<label>Header Promo 2: <input type="text" name="ihpromo" value="Spring" /></label>
+					<label>Header Promo 3: <input type="text" name="ihpromo" /></label><br>
+					<label>Header Promo 4: <input type="text" name="ihpromo" /></label><br>
+					<input type="button" onclick="addTexts('ihpromo',2)" value="Add" />
 				</div>
 				
 				<h3>Homepage</h3>
 				<div>
-					<label>AEM Launch: <input type="text" id="aemhmpg" title="Missing homepage launch" /></label><br>
-					<label>Banner 1 (Ticker): <input type="text" name="hmpg" /></label><br>
-					<label>Row 1a (Main 1): <input type="text" name="hmpg" /></label><br>
-					<label>Row 1b (Main 2): <input type="text" name="hmpg" /></label><br>
-					<label>Row 1c (Main 3): <input type="text" name="hmpg" /></label><br>
-					<label>Banner 2 (Special Ticker): <input type="text" name="hmpg" /></label><br>
-					<label>Row 2a (Promo 1): <input type="text" name="hmpg" /></label><br>
-					<label>Row 2b (Promo 2): <input type="text" name="hmpg" /></label><br>
-					<label>Row 2c (Promo 3): <input type="text" name="hmpg" /></label><br>
-					<label>Banner 3 (Promo 4): <input type="text" name="hmpg" /></label><br>
-					<label>Row 3a: <input type="text" name="hmpg" /></label><br>
+					<label>Banner 1: <input type="text" name="hmpg" /></label><br>
+					<label>Row 1a: <input type="text" name="hmpg" /></label><br>
+					<label>Row 1b: <input type="text" name="hmpg" /></label><br>
+					<label>Row 1c: <input type="text" name="hmpg" /></label><br>
+					<label>Banner 2: <input type="text" name="hmpg" /></label><br>
+					<label>Row 2a: <input type="text" name="hmpg" /></label><br>
+					<label>Row 2b: <input type="text" name="hmpg" /></label><br>
+					<label>Row 2c: <input type="text" name="hmpg" /></label><br>
+					<label>Banner 3: <input type="text" name="hmpg" /></label><br>
+					<label>Row 3: <input type="text" name="hmpg" /></label><br>
+					<label>Product Rail: <input type="text" name="hmpg" /></label><br>
 					<label>Row 4a: <input type="text" name="hmpg" /></label><br>
-					<label>Row 5a: <input type="text" name="hmpg" /></label><br>
-					<label>Row 5b: <input type="text" name="hmpg" /></label><br>
-					<label>Row 6a: <input type="text" name="hmpg" /></label><br>
-					<label>Row 6b: <input type="text" name="hmpg" /></label><br>
-					<label>Row 6c: <input type="text" name="hmpg" /></label><br>
-					<input type="button" onclick="addHomepage()" value="Add Homepage" />
+					<label>Row 4b: <input type="text" name="hmpg" /></label><br>
+					<label>Row 4c: <input type="text" name="hmpg" /></label><br>
+					<label>Banner 4: <input type="text" name="hmpg" /></label><br>
+					<input type="button" onclick="addTexts('hmpg',3)" value="Add" />
+				</div>
+				
+				<h3>Intl Homepage</h3>
+				<div>
+					<label>Banner 1: <input type="text" name="ihmpg" /></label><br>
+					<label>Row 1a: <input type="text" name="ihmpg" /></label><br>
+					<label>Row 1b: <input type="text" name="ihmpg" /></label><br>
+					<label>Row 1c: <input type="text" name="ihmpg" /></label><br>
+					<label>Banner 2: <input type="text" name="ihmpg" /></label><br>
+					<label>Row 2a: <input type="text" name="ihmpg" /></label><br>
+					<label>Row 2b: <input type="text" name="ihmpg" /></label><br>
+					<label>Row 2c: <input type="text" name="ihmpg" /></label><br>
+					<input type="button" onclick="addTexts('ihmpg',4)" value="Add" />
+				</div>
+				
+				<h3>Drawer Tickers</h3>
+				<div>
+					<table>
+						<tr>
+							<td></td>
+							<td>Default</td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Designers</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Women's Clothing</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Contemporary</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Shoes</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Handbags</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Jewelry & Accessories</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Beauty</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Men</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Kids</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Home</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Gifts</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="" />Sale</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+					</table>
+					<input type="button" onclick="addChecks('dt',5,'dtstate')" value="Add" />
 				</div>
 				
 				<h3>Designer Indexes</h3>
 				<div>
-					<table>
-						<tr>
-							<td></td>
-							<td>Removed</td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="di" value="cat45050736/r_main_drawer_promo" />Designer Index Drawer</label></td>
-							<td><input class="hide" type="checkbox" name="distate" value="" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="di" value="cat000730/r_designer_promo" />Main Designer Index</label></td>
-							<td><input class="hide" type="checkbox" name="distate" value="" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="di" value="cat980731/r_designer_promo" />Sale Designer Index</label></td>
-							<td><input type="checkbox" name="distate" value="3" /></td>
-						</tr>
-					</table>
-					<input type="button" onclick="addDesignerIndex()" value="Add Designer Indexes" />
+					<label><input type="checkbox" name="di" value="cat000730" />Main Designer Index</label><br>
+					<input type="button" onclick="addChecks('di',6)" value="Add" />
 				</div>
 				
-				<h3>CUSP</h3>
-				<div>
-					<table>
-						<tr>
-							<td></td>
-							<td>Removed</td>
-						</tr>
-						<tr class="hide">
-							<td><label><input type="checkbox" name="cusp" value="cat58930763/r_cusp_banner" />Banner</label></td>
-							<td><input class="hide" type="checkbox" name="cuspstate" value="" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="cusp" value="cat58930763/r_cusp_promo" />Bottom Refreshable</label></td>
-							<td><input class="hide" type="checkbox" name="cuspstate" value="4" checked /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="cusp" value="cat58930763/r_cusp_drawer_promo" />Drawer Ticker</label></td>
-							<td><input type="checkbox" name="cuspstate" value="3" /></td>
-						</tr>
-						<tr class="hide">
-							<td><label><input type="checkbox" name="cusp" value="cat58930763/r_lb_overlay" />Lookbook Overlay</label></td>
-							<td><input class="hide" type="checkbox" name="cuspstate" value="" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="cusp" value="cat58930763/r_promo_banner1" />Quote</label></td>
-							<td><input class="hide" type="checkbox" name="cuspstate" value="" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="cusp" value="cat58930763/r_promo_banner" />Silo Promo</label></td>
-							<td><input type="checkbox" name="cuspstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="cusp" value="cat64080747/r_head_long" />Silo Banner</label></td>
-							<td><input class="hide" type="checkbox" name="cuspstate" value="4" checked /></td>
-						</tr>
-					
-					</table>
-					<input type="button" onclick="addCUSP()" value="Add CUSP" />
-				</div>
-				
-				<h3>Silo Mains</h3>
-				<div>
-					<table>
-						<tr>
-							<td></td>
-							<td>On</td>
-							<td>Off</td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat46680737" />Women's Clothing</label></td>
-							<td><input type="checkbox" name="smstate1" value="1" /></td>
-							<td><input type="checkbox" name="smstate2" value="2" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat59600759" />CUSP</label></td>
-							<td><input type="checkbox" name="smstate1" value="1" /></td>
-							<td><input type="checkbox" name="smstate2" value="2" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat46690753" />Shoes</label></td>
-							<td><input type="checkbox" name="smstate1" value="1" /></td>
-							<td><input type="checkbox" name="smstate2" value="2" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat46690744" />Handbags</label></td>
-							<td><input type="checkbox" name="smstate1" value="1" /></td>
-							<td><input type="checkbox" name="smstate2" value="2" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat46690770" />Jewelry & Accessories</label></td>
-							<td><input type="checkbox" name="smstate1" value="1" /></td>
-							<td><input type="checkbox" name="smstate2" value="2" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat46690735" />Beauty</label></td>
-							<td><input type="checkbox" name="smstate1" value="1" /></td>
-							<td><input type="checkbox" name="smstate2" value="2" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat46680758" />Men</label></td>
-							<td><input type="checkbox" name="smstate1" value="1" /></td>
-							<td><input type="checkbox" name="smstate2" value="2" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat46660746" />Kids</label></td>
-							<td><input type="checkbox" name="smstate1" value="1" /></td>
-							<td><input type="checkbox" name="smstate2" value="2" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat46690774" />Home</label></td>
-							<td><input type="checkbox" name="smstate1" value="1" /></td>
-							<td><input type="checkbox" name="smstate2" value="2" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat46690785" />Gifts</label></td>
-							<td><input type="checkbox" name="smstate1" value="1" /></td>
-							<td><input type="checkbox" name="smstate2" value="2" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sm" value="cat980731" />Sale</label></td>
-							<td><input class="hide" type="checkbox" name="smstate1" value="4" checked /></td>
-							<td><input class="hide" type="checkbox" name="smstate2" value="" /></td>
-						</tr>
-					</table>
-					<input type="button" onclick="addSiloMain()" value="Add Silo Mains" />
-				</div>
-				
-				<h3>Silo Promos</h3>
+				<h3>Silo Graphic Headers</h3>
 				<div>
 					<table>
 						<tr>
@@ -233,6 +183,10 @@
 						</tr>
 						<tr>
 							<td><label><input type="checkbox" name="sp" value="cat000001" />Women's Clothing</label></td>
+							<td><input type="checkbox" name="spstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="sp" value="cat58930763" />Contemporary</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 						<tr>
@@ -267,95 +221,37 @@
 							<td><label><input type="checkbox" name="sp" value="cat000672" />Gifts</label></td>
 							<td><input type="checkbox" name="spstate" value="3" /></td>
 						</tr>
-					</table>
-					<input type="button" onclick="addSiloPromo()" value="Add Silo Promos" />
-				</div>
-				
-				<h3>Drawer Tickers</h3>
-				<div>
-					<table>
 						<tr>
-							<td></td>
-							<td>Removed</td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat44710738" />Women's Clothing</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat44710739" />Shoes</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat44710740" />Handbags</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat44710741" />Jewelry & Accessories</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat44710743" />Beauty</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat44710744" />Men</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat44710745" />Kids</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat44710746" />Home</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat44710747" />Gifts</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat46620744" />Sale</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
+							<td><label><input type="checkbox" name="sp" value="cat980731" />Sale</label></td>
+							<td><input class="hide" type="checkbox" name="spstate" value="3" /></td>
 						</tr>
 					</table>
-					<input type="button" onclick="addDrawerTicker()" value="Add Drawer Tickers" />
+					<input type="button" onclick="addChecks('sp',7,'spstate')" value="Add" />
 				</div>
 				
 				<h3>Popups &amp; Promo Tiles</h3>
 				<div>
-					<label>Name: <input type="text" id="poptilename" title="Missing popup/promo tile name" /></label>
-					<label><input type="checkbox" id="eligibility" value="Eligibility" />Eligibility</label><br>
-					<label>Folder/File Name: <input type="text" id="poptilefolder" title="Missing or invalid popup/promo tile folder name" /></label><br>
-					<input type="button" onclick="addPopTile(9)" value="Add Popup" />
-					<input type="button" onclick="addPopTile(10)" value="Add Promo Tile" />
+					<label><input type="radio" name="poptile" value="13" checked />Popup</label>
+					<label><input type="radio" name="poptile" value="12" />Promo Tile</label><br>
+					
+					<label>Name: <input type="text" id="poptilename" title="Missing popup/promo tile name" /></label><br>
+					<label>File Name: <input type="text" id="poptilefile" /></label><br>
+					<input type="button" onclick="addSingle('poptilename','poptilefile','poptile')" value="Add" />
 				</div>
 				
 				<h3>Everything Else</h3>
 				<div>
 					Type:<br>
-					<label><input type="radio" name="other" value="11" checked />Jump Page (F0)</label><br>
-					<label><input type="radio" name="other" value="12" />Graphic Header</label><br>
-					<label><input type="radio" name="other" value="13" />Silo Banner</label><br>
-					<label><input type="radio" name="other" value="14" />Nav Aux</label><br>
-					<label><input type="radio" name="other" value="15" />Video</label><br>
-					<label><input type="radio" name="other" value="16" />Magazine</label><br>
-					<label><input type="radio" name="other" value="17" />Entry Page</label><br>
-					<label><input type="radio" name="other" value="18" />Search Redirect</label><br>
+					<label><input type="radio" name="other" value="8" checked />Landing Page</label><br>
+					<label><input type="radio" name="other" value="9" />Entry Page</label><br>
+					<label><input type="radio" name="other" value="10" />Graphic Header</label><br>
+					<label><input type="radio" name="other" value="11" />Silo Banner</label><br>
+					<label><input type="radio" name="other" value="14" />Video</label><br>
+					<label><input type="radio" name="other" value="16" />PDP Banner</label><br>
 					
 					<label>Name: <input type="text" id="othername" title="Missing name" /></label>
-					<label>Cat ID: <input type="text" id="othercat" title="Missing or invalid cat ID" placeholder="cat" /></label><br>
-					<label><input type="checkbox" name="otherstate" value="1" />On</label>
-					<label><input type="checkbox" name="otherstate" value="2" />Off</label><br>
-					<input type="button" onclick="addOther();" value="Add" />
-				</div>
-				
-				<h3>Midday Dash</h3>
-				<div class="no-reset">
-					<label>Dash Date: <input type="text" id="dashdate" size="5" title="Missing dash date" /></label><br>
-					<label>After Dash Promo 4: <input type="text" id="afterdash1" title="Missing after dash promo 4" value="Removed" /></label><br>
-					<label>After Dash Promo 4p1: <input type="text" id="afterdash2" title="Missing after dash promo 4p1" value="Removed" /></label><br>
-					<input type="button" onclick="addDash();" value="Add Midday Dash" />
+					<label>Cat ID: <input type="text" id="othercat" placeholder="cat" /></label><br>
+					<input type="button" onclick="addSingle('othername','othercat','other')" value="Add" />
 				</div>
 				
 				<h3>Checkout</h3>
@@ -366,19 +262,31 @@
 							<td>Removed</td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="co" value="checkout_spc/promo_areas/checkout_top2" />Top Banner</label></td>
+							<td><label><input type="checkbox" name="co" value="checkout_spc/promo_areas/checkout_top1" />Banner 1</label></td>
 							<td><input type="checkbox" name="costate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="co" value="checkout/shoppingcart/promo/cartPromo" />Promo</label></td>
-							<td><input class="hide" type="checkbox" name="costate" value="" /></td>
+							<td><label><input type="checkbox" name="co" value="checkout_spc/promo_areas/checkout_top2" />Banner 2</label></td>
+							<td><input type="checkbox" name="costate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="co" value="checkout/shoppingcart/promo/cartPromo" />Cart Promo</label></td>
+							<td><input class="hide" type="checkbox" name="costate" value="3" /></td>
 						</tr>
 						<tr>
 							<td><label><input type="checkbox" name="co" value="checkout/easycart/minicart_banner" />Mini Cart</label></td>
-							<td><input class="hide" type="checkbox" name="costate" value="" /></td>
+							<td><input class="hide" type="checkbox" name="costate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="co" value="checkout/shoppingcart/promosmart/smart_bag" />Smart Bag</label></td>
+							<td><input type="checkbox" name="costate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="co" value="checkout/shoppingcart/promosmart/smart_banner" />Smart Cart</label></td>
+							<td><input type="checkbox" name="costate" value="3" /></td>
 						</tr>
 					</table>
-					<input type="button" onclick="addCheckout()" value="Add Checkout" />
+					<input type="button" onclick="addChecks('co',15,'costate')" value="Add" />
 				</div>
 			</div>
 		</form>
@@ -396,21 +304,16 @@
 						<input type="text" id="edittime" /></label></td>
 					</tr>
 					<tr>
-						<td><label>AEM Header Promos:
-						<input type="text" id="edithpromo" /></label></td>
-						<td><label>AEM Homepage:
-						<input type="text" id="edithomepage" /></label></td>
+						<td><label>Home Launch:
+						<input type="text" id="edithome" /></label></td>
+						<td><label>Other Launch:
+						<input type="text" id="editother" /></label></td>
 					</tr>
 					<tr>
-						<td colspan="2"><label>Category Folder:
+						<td><label>Category Folder:
 						<input type="text" id="editfolder" /></label></td>
-					</tr>
-					<tr>
-						<td width="61%"><label>Remove Combined Patch:
-							<select id="editremove"></select>
-						</label></td>
-						<td width="39%"><label>Use Test1:
-						<input type="checkbox" id="edittest1" /></label></td>
+						<td><label>Remove Combined Patch:
+						<select id="editremove"></select></label></td>
 					</tr>
 				</tbody>
 			</table>
@@ -421,7 +324,7 @@
 		<form method="post">
 			<table>
 				<tr>
-					<td colspan="2"><em style="color: red">----------------------WARNING----------------------<br>
+					<td colspan="2"><em style="color: red">----------------WARNING----------------<br>
 					Changing any of the below may cause the asset to generate incorrectly!</em></td>
 				</tr>
 				<tr>
@@ -432,23 +335,21 @@
 					<td width="50%"><label>Type:
 						<select id="edittype">
 							<option value="1">Header Promo</option>
+							<option value="2">Intl Header Promo</option>
 							<option value="3">Homepage</option>
-							<option value="4">CUSP</option>
-							<option value="5">Designer Index</option>
-							<option value="6">Silo Main</option>
-							<option value="7">Silo Promo</option>
-							<option value="8">Drawer Ticker</option>
-							<option value="9">Popup</option>
-							<option value="10">Promo Tile</option>
-							<option value="11">Jump Page (F0)</option>
-							<option value="12">Graphic Header</option>
-							<option value="13">Silo Banner</option>
-							<option value="14">Nav Aux</option>
-							<option value="15">Video</option>
-							<option value="16">Magazine</option>
-							<option value="17">Entry Page</option>
-							<option value="18">Search Redirect</option>
-							<option value="19">Checkout</option>
+							<option value="4">Intl Homepage</option>
+							<option value="5">Drawer Ticker</option>
+							<option value="6">Designer Index</option>
+							<option value="7">Silo Graphic Header</option>
+							<option value="8">Landing Page</option>
+							<option value="9">Entry Page</option>
+							<option value="10">Graphic Header</option>
+							<option value="11">Silo Banner</option>
+							<option value="12">Promo Tile</option>
+							<option value="13">Popup</option>
+							<option value="14">Video</option>
+							<option value="15">Checkout</option>
+							<option value="16">PDP Banner</option>
 						</select>
 					</label></td>
 					<td width="50%"><label>State:
@@ -457,7 +358,8 @@
 							<option value="1">Turn On</option>
 							<option value="2">Turn Off</option>
 							<option value="3">Removed</option>
-							<option value="4">Link</option>
+							<option value="4">Default</option>
+							<option value="5">Coming Soon</option>
 						</select>
 					</label></td>
 				</tr>
