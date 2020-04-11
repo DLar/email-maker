@@ -36,7 +36,7 @@ div.ui-datepicker{
 }
 
 body {
-	font-family: Arial, sans-serif;
+	font-family: Calibri, Arial, sans-serif;
 	font-size:12px;
 	margin: 20px;
 }
@@ -51,7 +51,7 @@ table {
 
 #left {
 	width: 65%;
-	font-size:13px;
+	font-size: 14px;
 	line-height: 175%;
 	display: inline-block;
 }
@@ -94,7 +94,7 @@ a {
 	-webkit-border-radius: 7px;
 	-moz-border-radius: 7px;
 	border-radius: 7px;
-	padding: 0 1em;
+	padding: 1em;
 }
 
 #patchlist div.selected {
@@ -138,18 +138,11 @@ span[asset].selected {
 	display: block;
 }
 
-#editinfo tr:nth-child(6n+4) td,
-#editinfo tr:nth-child(6n+5) td,
-#editinfo tr:nth-child(6n+6) td {
-	background-color: #E5E5E5;
+#editinfo tr:nth-child(2n+2) td {
+	border-bottom: 2px solid #E5E5E5;
 }
 
 .ui-tooltip {
 	color: red;
 	border-color: red;
-}
-
-ol {
-	margin-top: 0;
-	margin-bottom: 0;
 }
