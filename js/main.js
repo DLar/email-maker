@@ -10,7 +10,7 @@ $(document).ready(function() {
 	$('input[type=text]').blur(function() {
 		$(this).val($.trim($(this).val()));
 		
-		if ($(this).attr('id') != 'patchtime' && $(this).attr('id') != 'approvaltime' && $(this).attr('id') != 'edittime' && $(this).attr('id') != 'editname') {
+		if ($(this).attr('id') != 'patchtime' && $(this).attr('id') != 'approvaltime' && $(this).attr('id') != 'edittime') {
 			$(this).val($(this).val().replace(':', ''));
 		}
 	});
@@ -210,11 +210,11 @@ function addPatch() {
 		if (selections[i].checked) { cutline = parseInt(selections[i].value); break; }
 	}
 	
-	if (name === '') { $('#patchname').tooltip('enable').focus(); return; }
-	if (date === '') { $('#patchdate').tooltip('enable').focus(); return; }
-	if (time === '') { $('#patchtime').tooltip('enable').focus(); return; }
+	if (!name) { $('#patchname').tooltip('enable').focus(); return; }
+	if (!date) { $('#patchdate').tooltip('enable').focus(); return; }
+	if (!time) { $('#patchtime').tooltip('enable').focus(); return; }
 	if (/\W/.test(folder)) { $('#patchfolder').tooltip('enable').focus(); return; }
-	if (merchant === '') { $('#patchmerchant').tooltip('enable').focus(); return; }
+	if (!merchant) { $('#patchmerchant').tooltip('enable').focus(); return; }
 	
 	patches.push(new Patch(date, time, folder, new Info(name, merchant, cutline)));
 	currentPatch = patches.length - 1;
@@ -275,8 +275,8 @@ function combinePatches() {
 				currentAsset = -1;
 				patches[i].info = patches[i].info.concat(patches[j].info);
 				addAssets(patches[j].assets);
-				if (patches[j].aemhome !== '') { patches[i].aemhome = patches[j].aemhome; }
-				if (patches[j].aemother !== '') { patches[i].aemother = patches[j].aemother; }
+				if (patches[j].aemhome) { patches[i].aemhome = patches[j].aemhome; }
+				if (patches[j].aemother) { patches[i].aemother = patches[j].aemother; }
 				patches.splice(j, 1);
 				j--;
 				combined++;
@@ -345,19 +345,19 @@ function selectText(containerid) {
 	var container = document.getElementById(containerid);
 	var range;
 	
-	if (container.innerHTML === '') { return; }
+	if (!container.innerHTML) { return; }
 	
 	if (document.body.createTextRange) {
 		range = document.body.createTextRange();
 		range.moveToElementText(container);
 		range.select();
-		document.execCommand("copy");
+		document.execCommand('copy');
 	} else if (window.getSelection) {	
 		range = document.createRange();
 		range.selectNodeContents(container);
 		window.getSelection().removeAllRanges();
 		window.getSelection().addRange(range);
-		document.execCommand("copy");
+		document.execCommand('copy');
 	}
 }
 
@@ -372,7 +372,7 @@ function addSingle(nameId, pathId, typesName) {
 		if (types[i].checked) { type = parseInt(types[i].value); break; }
 	}
 	
-	if (name === '') { $('#' + nameId).tooltip('enable').focus(); return; }
+	if (!name) { $('#' + nameId).tooltip('enable').focus(); return; }
 	
 	addAssets([new Asset(name, type, path)]);
 	buildOutput();
@@ -386,12 +386,12 @@ function addTexts(inputsName, type, pathsName) {
 	var assets = [], name, path;
 	
 	for (var i = 0; i < inputs.length; i++) {
-		if (inputs[i].value === '') { continue; }
+		if (!inputs[i].value) { continue; }
 		else if (pathsName) {
 			name = inputs[i].value;
 			path = paths[i].value;
 		} else {
-			name = inputs[i].parentElement.textContent + inputs[i].value;
+			name = inputs[i].parentElement.textContent.replace(':', ' -') + inputs[i].value;
 			path = inputs[i].getAttribute('data-path');
 		}
 		
@@ -425,39 +425,20 @@ function addChecks(inputsName, type, statesName) {
 }
 
 function switchBuild(button) {
-	if (build === 0) { build = 1; button.value = "Generate Approval"; }
-	else if (build === 1) { build = 0; button.value = "Generate Schedule"; }
+	if (build === 0) { build = 1; button.value = 'Generate Approval'; }
+	else if (build === 1) { build = 0; button.value = 'Generate Schedule'; }
 	buildOutput();
 }
 
-function mainLink() {
-	var href = lib[brand].domains[build];
-	switch (brand) {
-		case 'nm':
-			if (build === 0) { href = lib[brand].domains[1] + '?personalize=true'; } break;
-		case 'app':
-			if (build === 0) {
-				href += 'c/cat54940733?cacheCheckSeconds=1';
-				var href2 = 'https://s3-us-west-2.amazonaws.com/nmmobile-builds/cfa/operational/CFA_operational.html';
-				return '<br><br>Test App: <a href="' + href2 + '">' + href2 + '</a><br>CSV File: <a href="' + href + '">' + href + '</a>';
-			}
-			else { href += 'category/cat000000/the_app/the_app.csv'; } break;
-		case 'hc':
-		case 'lc':
-			break;
-		default:
-			return '';
-	}
-	return '<br><br><a href="' + href + '">' + href + '</a>';
-}
-
-function typeLink(type, path) {
+function getLink(type, path) {
 	var href = lib[brand].domains[build];
 
-	if (brand === 'nm') {
+	if (brand === 'NM') {
 		switch (type) {
+			case 0:
+				if (build === 0) { href = lib[brand].domains[1] + '?personalize=true'; } break;
 			case 10:
-				if (path === '') { return ''; }
+				if (!path) { return ''; }
 			case 6:
 			case 7:
 			case 8:
@@ -474,13 +455,15 @@ function typeLink(type, path) {
 		}
 	}
 
-	if (brand === 'lp') {
+	if (brand === 'LB/MAG') {
 		if (type === 1 || type === 2) { href += 'c/' + path + '?cacheCheckSeconds=1'; }
 		else { return ''; }
 	}
 
-	if (brand === 'hc') {
+	if (brand === 'HC') {
 		switch (type) {
+			case 0:
+				break;
 			case 3:
 				href += 'category/' + path + '/r_main_drawer_promo.html'; break;
 			case 4:
@@ -496,8 +479,10 @@ function typeLink(type, path) {
 		}
 	}
 
-	if (brand === 'lc') {
+	if (brand === 'LC') {
 		switch (type) {
+			case 0:
+				break;
 			case 2:
 				href += 'category/cat000000/r_header_promo2.html'; break;
 			case 4:
@@ -523,17 +508,23 @@ function typeLink(type, path) {
 		}
 	}
 
-	if (brand === 'app') {
-		if (type === 1 && path !== '') { return ' <span style="color: green">(' + path + ')</span>'; }
+	if (brand === 'APP') {
+		if (type === 0 && build === 0) {
+			href += 'c/cat54940733?cacheCheckSeconds=1';
+			var href2 = 'https://s3-us-west-2.amazonaws.com/nmmobile-builds/cfa/operational/CFA_operational.html';
+			return '<b>Test App:</b> <a href="' + href2 + '">' + href2 + '</a><br><b>CSV File:</b> <a href="' + href + '">' + href + '</a>';
+		}
+		else if (type === 0 && build === 1) { href += 'category/cat000000/the_app/the_app.csv'; }
+		else if (type === 1 && path) { return ' <span style="color: green">(' + path + ')</span>'; }
 		else { return ''; }
 	}
 
-	if (brand === 'ntf') {
+	if (brand === 'NTF') {
 		if (type === 1) { href += 'content/dam/neiman-marcus/FINAL/APP/NTF/' + path + '.jpg'; }
 		else { return ''; }
 	}
 
-	return ': <a href="' + href + '">' + href + '</a>';
+	return '<a href="' + href + '">' + href + '</a>';
 }
 
 function buildOutput() {
@@ -553,24 +544,14 @@ function buildOutput() {
 	else { temp = patches[0].date + ' (' + patches[0].time + ')'; }
 	
 	if (build === 0) {
-		temp += ' Patches Ready for Approval by ' + ((approvaltime.value === '') ? approvaltime.placeholder : approvaltime.value);
-		
-		header = '<b>The <span style="color: red">' + patches[0].date + ' (' + patches[0].time + ')</span> Merchant Site Support has been loaded to the DAM<br>' +
-			'Please review and respond with any changes by <span style="color: red">' +
-			((approvaltime.value === '') ? approvaltime.placeholder : (approvaltime.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate())) + '</span></b><br>' +
-			'The first few characters of each file name describe the type of asset:<br>' +
-			'&bull; r = Desktop or responsive for mobile<br>' +
-			'&bull; m = Mobile<br>' +
-			'&bull; GH = Graphic Header<br>' +
-			'&bull; SB = Silo Banner<br>' +
-			'&bull; PT = Promo Tile<br>';
+		emailsub.innerHTML = '[' + brand + '] ' + temp + ' ' + lib[brand].header + ' Ready for Approval by ' + ((approvaltime.value) ? approvaltime.value : approvaltime.placeholder);
+		header = 'The <span style="color: red"><b>' + temp + '</b></span> ' + lib[brand].header.toLowerCase() + ' now ready to review online.<br>' +
+			'Please respond with changes or approval by <span style="color: red"><b>' +
+			((approvaltime.value) ? (approvaltime.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate()) : approvaltime.placeholder) + '.</span></b><br>';
 	} else {
-		temp += ' Patches are Ready to be Scheduled';
-		header = 'Producers,<br>' + temp + '!<br>';
+		emailsub.innerHTML = '[' + brand + '] ' + temp + ' ' + lib[brand].header + ' Ready to Schedule';
+		header = 'Producers,<br>The ' + temp + ' ' + brand + ' ' + lib[brand].header.toLowerCase() + ' ready to schedule!<br>';
 	}
-	
-	emailsub.innerHTML = lib[brand].tags[build] + ' ' + temp;
-	
 	header += spacer + '<span style="color:green"><b>Merchant/Marketing Owner:</b>';
 	
 	for (var i = 0; i < patches.length; i++) {
@@ -578,9 +559,9 @@ function buildOutput() {
 		
 		if (build === 1) {
 			body += '<b><span style="color: gray">';
-			if (patches[i].folder !== '') { body += 'Category Folder: ' + patches[i].folder + '<br>'; }
-			if (patches[i].aemhome !== '') { body += 'Home Launch: ' + patches[i].aemhome + '<br>'; }
-			if (patches[i].aemother !== '') { body += 'Other Launch: ' + patches[i].aemother + '<br>'; }
+			if (patches[i].folder) { body += 'Category Folder: ' + patches[i].folder + '<br>'; }
+			if (patches[i].aemhome) { body += 'Home Launch: ' + patches[i].aemhome + '<br>'; }
+			if (patches[i].aemother) { body += 'Other Launch: ' + patches[i].aemother + '<br>'; }
 			body += '<br></span></b>';
 		}
 		
@@ -594,7 +575,9 @@ function buildOutput() {
 				temp += '<br>(' + patches[i].info[k].name + ' - Cutlines will go ' + lib.cutlines[patches[i].info[k].cutline] + ' at this time)';
 			}
 		}
-		body += '</span><span style="color: orange">' + temp + '</span></b>' + mainLink();
+		body += '</span><span style="color: orange">' + temp + '</span></b>';
+		temp = getLink(0,'');
+		if (temp) { body += '<br><br>' + temp; }
 		
 		for (var j = 0; j < patches[i].assets.length; j++) {
 			if (j === 0 || patches[i].assets[j-1].type !== patches[i].assets[j].type) {
@@ -604,16 +587,20 @@ function buildOutput() {
 			if (patches[i].assets[j].state !== 0) {
 				body += ' <span style="color: ' + ((patches[i].assets[j].state === 5) ? 'magenta' : 'green') + '">(' + lib.states[patches[i].assets[j].state] + ')</span>';
 			}
-			body += typeLink(patches[i].assets[j].type, patches[i].assets[j].path) + '</span>';
+			temp = getLink(patches[i].assets[j].type, patches[i].assets[j].path);
+			if (temp) { body += ': ' + temp; }
+			body += '</span>';
 		}
 		
 		body += '</div>';
 	}
 	
 	header += '</span>';
-	if (build === 1) header += '<br><span style="color: purple">Creative: ' + lib.creative[oncall.value] + '</span>';
+	if (build === 1) header += '<br><span style="color: purple">Creative: ' + oncall.options[oncall.selectedIndex].textContent + ' ' + oncall.value + '</span>';
 	
-	body += '</div>' + spacer + '<strong>What do the colors mean?</strong><br><span style="color: green">GREEN: Merchant Action</span> | <span style="color: purple">PURPLE: Creative Contact</span> | <span style="color: orange">ORANGE: Production Action</span> |<br><span style="color: red">RED: Patch Description</span> | <span style="color: gray">GRAY: Mentos Folder Name</span> | <span style="color: blue">BLUE: Category Link</span><br>' + spacer;
+	body += '</div>' + spacer + '<strong>What do the colors mean?</strong><br>' +
+	'<span style="color: green">GREEN: Merchant Action</span> | <span style="color: purple">PURPLE: Creative Contact</span> | <span style="color: orange">ORANGE: Production Action</span> |<br>' +
+	'<span style="color: red">RED: Patch Description</span> | <span style="color: gray">GRAY: Mentos Folder Name</span> | <span style="color: blue">BLUE: Category Link</span><br>' + spacer;
 	
 	emailbod.innerHTML = header + body;
 	

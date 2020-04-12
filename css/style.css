@@ -36,7 +36,7 @@ div.ui-datepicker{
 }
 
 body {
-	font-family: Calibri, Arial, sans-serif;
+	font-family: Arial, sans-serif;
 	font-size:12px;
 	margin: 20px;
 }
@@ -51,7 +51,7 @@ table {
 
 #left {
 	width: 65%;
-	font-size: 14px;
+	font-size: 13px;
 	line-height: 175%;
 	display: inline-block;
 }

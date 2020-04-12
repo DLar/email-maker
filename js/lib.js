@@ -1,10 +1,4 @@
 const lib = {
-	creative: {
-		1: 'David',
-		2: 'Anthony',
-		3: 'Kelsey',
-		4: 'Ronni'
-	},
 	cutlines: {
 		1: 'LIVE',
 		2: 'DOWN'
@@ -16,9 +10,9 @@ const lib = {
 		4: 'Default',
 		5: 'Coming Soon'
 	},
-	nm: {
+	NM: {
+		header: 'Patches are',
 		domains: ['https://wn.ref1.nmg/', 'https://www.neimanmarcus.com/'],
-		tags: ['[NM Approval]', '[NM Schedule]'],
 		types: {
 			1: 'Header Promos (AEM)',
 			2: 'Intl Header Promos (AEM)',
@@ -29,7 +23,7 @@ const lib = {
 			7: 'Silo Graphic Headers (AEM)',
 			8: 'Landing Pages (AEM)',
 			9: 'Entry Pages (AEM)',
-			10: 'Graphic Headers (AEM/DAM)',
+			10: 'Graphic Headers (AEM)',
 			11: 'Silo Banners (DAM)',
 			12: 'Promo Tiles (DAM)',
 			13: 'Popups (ATG)',
@@ -38,9 +32,9 @@ const lib = {
 			16: 'PDP Banners (DAM)'
 		}
 	},
-	lp: {
+	'LB/MAG': {
+		header: 'Lookbook/Magazine is',
 		domains: ['https://www.neimanmarcus.com/'],
-		tags: ['[LB/MAG Approval]'],
 		types: {
 			1: 'Lookbook (AEM)',
 			2: 'Magazine (AEM)',
@@ -49,9 +43,18 @@ const lib = {
 			5: 'Promo Tile (DAM)'
 		}
 	},
-	hc: {
+	SS: {
+		header: 'Merchant Site Support is',
+		domains: ['https://www.neimanmarcus.com/'],
+		types: {
+			1: 'Graphic Header (DAM)',
+			2: 'Silo Banner (DAM)',
+			3: 'Promo Tile (DAM)'
+		}
+	},
+	HC: {
+		header: 'Patches are',
 		domains: ['https://whref1/', 'https://www.horchow.com/'],
-		tags: ['[HC Approval]', '[HC Schedule]'],
 		types: {
 			1: 'Header Promos',
 			2: 'Homepage',
@@ -62,9 +65,9 @@ const lib = {
 			7: 'Checkout'
 		}
 	},
-	lc: {
+	LC: {
+		header: 'Patches are',
 		domains: ['https://lcref1/', 'https://www.lastcall.com/'],
-		tags: ['[LC Approval]', '[LC Schedule]'],
 		types: {
 			1: 'Header Promos',
 			2: 'Promo Banner',
@@ -81,17 +84,17 @@ const lib = {
 			13: 'PDP Button'
 		}
 	},
-	app: {
+	APP: {
+		header: 'App is',
 		domains: ['https://wn.test3.nmg/', 'https://www.neimanmarcus.com/'],
-		tags: ['[APP Approval]', '[APP Schedule]'],
 		types: {
 			1: 'Home Screen',
 			2: 'Stores'
 		}
 	},
-	ntf: {
+	NTF: {
+		header: 'Notifications are',
 		domains: ['https://www.neimanmarcus.com/'],
-		tags: ['[NTF Approval]'],
 		types: {
 			1: 'Image',
 			2: 'PUSH',
