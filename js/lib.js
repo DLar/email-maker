@@ -60,9 +60,7 @@ const lib = {
 			2: 'Homepage',
 			3: 'Drawer Tickers',
 			4: 'Graphic Headers',
-			5: 'Popup',
-			6: 'Search',
-			7: 'Checkout'
+			5: 'Other'
 		}
 	},
 	LC: {
@@ -85,7 +83,7 @@ const lib = {
 		}
 	},
 	APP: {
-		header: 'App is',
+		header: 'Patches are',
 		domains: ['https://wn.test3.nmg/', 'https://www.neimanmarcus.com/'],
 		types: {
 			1: 'Home Screen',

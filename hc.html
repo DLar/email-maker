@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>HC Email Maker</title>
+	
+	<script type="text/javascript" src="js/vendor/jquery-2.1.3.min.js"></script>
+	<script type="text/javascript" src="js/vendor/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="js/vendor/FileSaver.min.js"></script>
+	<script type="text/javascript" src="js/lib.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+	<script type="text/javascript">brand = 'HC';</script>
+	
+ 	<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+	<div id="left">
+		<h2>Subject</h2>
+		<input type="button" value="Copy to Clipboard" onclick="selectText('emailsub')" />
+		<div id="emailsub"></div>
+		<h2>Body</h2>
+		<input type="button" value="Copy to Clipboard" onclick="selectText('emailbod')" />
+		<div id="emailbod"></div>
+	</div>
+	
+	<div id="right">
+		<form id="form1" method="post">
+			<h2>Options</h2>
+			<label>On Call: 
+				<select id="oncall">
+					<option value="">David</option>
+					<option value="">Anthony</option>
+					<option value="">Kelsey</option>
+					<option value="">Ronni</option>
+				</select>
+			</label><br>
+			<label>Approval By: <input type="text" maxlength="7" size="7" id="approvaltime" placeholder="ASAP" /></label><br>
+			<input type="button" id="removeselected" onclick="removeSelected()" value="Remove Selected" title="No patches or assets to remove" />
+			<input type="button" id="combinepatches" onclick="combinePatches()" value="Combine Patches" title=" " /><br>
+			<input type="button" onclick="loadPrevious()" value="Load Previous" />
+			<input type="button" onclick="switchBuild(this)" value="Generate Schedule" />
+			<input type="button" id="exportfile" onclick="exportJSON()" value="Export" title="Nothing to export" /><br>
+			<label>Import: <input type="file" id="loadfile" onchange="loadFiles(this.files)" title="Empty or invalid JSON file" accept=".json" multiple /></label><br>
+			<input type="button" onclick="clearForm()" value="Clear Text Fields" style="margin-bottom: 10px;" />
+			
+			<div id="accordion">
+				<h3>Patch</h3>
+				<div class="no-reset">
+					<label>Name: <input type="text" id="patchname" title="Missing patch name" /></label><br>
+					<label>Date: <input type="text" size="5" id="patchdate" title="Missing patch date" /></label>
+					<label>Time: <input type="text" maxlength="9" size="9" id="patchtime" title="Missing patch time" /></label><br>
+					<label>Category Folder: <input type="text" id="patchfolder" /></label><br>
+					<label>Merchant: <input type="text" id="patchmerchant" title="Missing merchant name" /></label><br>
+					<input type="button" id="addpatch" onclick="addPatch()" value="Add" title="Need at least 1 patch before adding any assets" />
+				</div>
+				
+				<h3>Header Promos</h3>
+				<div>
+					<label>Header Promo 1: <input type="text" name="hpromo" /></label><br>
+					<label>Header Promo 2: <input type="text" name="hpromo" /></label><br>
+					<label>Header Promo 3: <input type="text" name="hpromo" /></label><br>
+					<label>Header Promo 4: <input type="text" name="hpromo" /></label><br>
+					<input type="button" onclick="addTexts('hpromo',1)" value="Add" />
+				</div>
+				
+				<h3>Homepage</h3>
+				<div>
+					<label>Main 1: <input type="text" name="hmpg" /></label><br>
+					<label>Row 1a: <input type="text" name="hmpg" /></label><br>
+					<label>Row 1b: <input type="text" name="hmpg" /></label><br>
+					<label>Row 1c: <input type="text" name="hmpg" /></label><br>
+					<label>Row 1d: <input type="text" name="hmpg" /></label><br>
+					<label>Row 1e: <input type="text" name="hmpg" /></label><br>
+					<label>Row 1f: <input type="text" name="hmpg" /></label><br>
+					<label>Row 2: <input type="text" name="hmpg" /></label><br>
+					<label>Row 3a: <input type="text" name="hmpg" /></label><br>
+					<label>Row 3b: <input type="text" name="hmpg" /></label><br>
+					<label>Row 4: <input type="text" name="hmpg" /></label><br>
+					<label>Row 5: <input type="text" name="hmpg" /></label><br>
+					<label>Row 6: <input type="text" name="hmpg" /></label><br>
+					<label>Row 7: <input type="text" name="hmpg" /></label><br>
+					<label>Row 8: <input type="text" name="hmpg" /></label><br>
+					<input type="button" onclick="addTexts('hmpg',2)" value="Add" />
+				</div>
+				
+				<h3>Drawer Tickers</h3>
+				<div>
+					<table>
+						<tr>
+							<td></td>
+							<td>Removed</td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="cat17320733" />Furniture</label></td>
+							<td><input type="checkbox" name="dtstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="cat17320736" />Decor</label></td>
+							<td><input type="checkbox" name="dtstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="cat17320734" />Bed & Bath</label></td>
+							<td><input type="checkbox" name="dtstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="cat17320737" />Lighting</label></td>
+							<td><input type="checkbox" name="dtstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="cat17320739" />Rugs & Windows</label></td>
+							<td><input type="checkbox" name="dtstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="cat17320738" />Tabletop & Gourmet</label></td>
+							<td><input type="checkbox" name="dtstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="cat17320741" />Outdoor</label></td>
+							<td><input type="checkbox" name="dtstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="cat17320735" />Travel & Gifts</label></td>
+							<td><input type="checkbox" name="dtstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" value="cat20480739" />Inspiration</label></td>
+							<td><input type="checkbox" name="dtstate" value="3" /></td>
+						</tr>
+					</table>
+					<input type="button" onclick="addChecks('dt',3,'dtstate')" value="Add" />
+				</div>
+				
+				<h3>Graphic Headers</h3>
+				<div>
+					<input class="hide" type="radio" name="gh" value="4" checked />
+					<label>Name: <input type="text" id="ghname" /></label><br>
+					<label>Cat ID: <input type="text" id="ghpath" value="cat23410731" /></label><br>
+					<input type="button" onclick="addSingle('ghname','ghpath','gh')" value="Add" />
+				</div>
+				
+				<h3>Everything Else</h3>
+				<div>
+					<table>
+						<tr>
+							<td></td>
+							<td>Removed</td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="other" value="popups/r_horchow_popup" />Popup</label></td>
+							<td><input class="hide" type="checkbox" name="otherstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="other" value="search/r_promo" />Search</label></td>
+							<td><input type="checkbox" name="otherstate" value="3" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="other" value="product/r_promo1" />Checkout</label></td>
+							<td><input type="checkbox" name="otherstate" value="3" /></td>
+						</tr>
+					</table>
+					<input type="button" onclick="addChecks('other',5,'otherstate')" value="Add" />
+				</div>
+			</div>
+		</form>
+	</div>
+	
+	<div id="editpatch" title="Edit Patch">
+		<form method="post">
+			<table>
+				<tbody id="editinfo"></tbody>
+				<tbody>
+					<tr>
+						<td><label>Date:
+						<input type="text" id="editdate" /></label></td>
+						<td><label>Time:
+						<input type="text" id="edittime" /></label></td>
+					</tr>
+					<tr>
+						<td><label>Category Folder:
+						<input type="text" id="editfolder" /></label></td>
+						<td><label>Remove Combined Patch:
+						<select id="editremove"></select></label></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+	
+	<div id="editasset" title="Edit Asset">
+		<form method="post">
+			<table>
+				<tr>
+					<td colspan="2"><em style="color: red">----------------WARNING----------------<br>
+					Changing any of the below may cause the asset to generate incorrectly!</em></td>
+				</tr>
+				<tr>
+					<td colspan="2"><label>Name:
+					<input type="text" id="editname"></label></td>
+				</tr>
+				<tr>
+					<td width="50%"><label>Type:
+						<select id="edittype">
+							<option value="1">Header Promo</option>
+							<option value="2">Homepage</option>
+							<option value="3">Drawer Ticker</option>
+							<option value="4">Graphic Header</option>
+							<option value="5">Popup</option>
+							<option value="6">Search</option>
+							<option value="7">Checkout</option>
+						</select>
+					</label></td>
+					<td width="50%"><label>State:
+						<select id="editstate">
+							<option value="0"></option>
+							<option value="1">Turn On</option>
+							<option value="2">Turn Off</option>
+							<option value="3">Removed</option>
+							<option value="4">Default</option>
+							<option value="5">Coming Soon</option>
+						</select>
+					</label></td>
+				</tr>
+				<tr>
+					<td colspan="2"><label>Path:
+					<input type="text" id="editpath"></label></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</body>
+</html>

@@ -65,8 +65,8 @@ $(document).ready(function() {
 					info[i].name = names[i].value;
 					info[i].merchant = merchants[i].value;
 					
-					if (selections[i].checked) { info[i].cutline = parseInt(selections[i].value); continue; }
-					else if (selections2[i].checked) { info[i].cutline = parseInt(selections2[i].value); continue; }
+					if (brand === 'NM' && selections[i].checked) { info[i].cutline = parseInt(selections[i].value); continue; }
+					else if (brand === 'NM' && selections2[i].checked) { info[i].cutline = parseInt(selections2[i].value); continue; }
 					else { info[i].cutline = 0; }
 				}
 				
@@ -75,9 +75,12 @@ $(document).ready(function() {
 				patches[currentPatch].date = editdate.value;
 				patches[currentPatch].time = edittime.value;
 				patches[currentPatch].folder = editfolder.value;
-				patches[currentPatch].aemother = editother.value;
-				patches[currentPatch].aemhome = edithome.value;
-				
+
+				if (brand === 'NM') {
+					patches[currentPatch].aemother = editother.value;
+					patches[currentPatch].aemhome = edithome.value;
+				}
+
 				buildOutput();
 			},
 			Cancel: function() {
@@ -132,12 +135,14 @@ $(document).ready(function() {
 		var info = patches[currentPatch].info;
 		for (var i = 0; i < info.length; i++) {
 			temp += '<tr><td><label>Name:<input type="text" name="editname" value="' + info[i].name + '" /></label></td>' +
-				'<td><label>Merchant:<input type="text" name="editmerchant" value="' + info[i].merchant + '" /></label></td></tr>' +
+				'<td><label>Merchant:<input type="text" name="editmerchant" value="' + info[i].merchant + '" /></label></td></tr>';
+			if (brand === 'NM') {
 				'<tr><td colspan="2">Cutlines: <label><input type="checkbox" name="editlive" value="1" ';
-			if (info[i].cutline === 1) { temp += 'checked '; }
-			temp += '/>Live</label> <label><input type="checkbox" name="editremove" value="2" ';
-			if (info[i].cutline === 2) { temp += 'checked '; }
-			temp += '/>Remove</label></td></tr>';
+				if (info[i].cutline === 1) { temp += 'checked '; }
+				temp += '/>Live</label> <label><input type="checkbox" name="editremove" value="2" ';
+				if (info[i].cutline === 2) { temp += 'checked '; }
+				temp += '/>Remove</label></td></tr>';
+			}
 			
 			if (info.length > 1) { temp2 += '<option value="' + i + '">' + info[i].name + '</option>'; }
 		}
@@ -147,8 +152,11 @@ $(document).ready(function() {
 		editdate.value = patches[currentPatch].date;
 		edittime.value = patches[currentPatch].time;
 		editfolder.value = patches[currentPatch].folder;
-		editother.value = patches[currentPatch].aemother;
-		edithome.value = patches[currentPatch].aemhome;
+
+		if (brand === 'NM') {
+			editother.value = patches[currentPatch].aemother;
+			edithome.value = patches[currentPatch].aemhome;
+		}
 		
 		$('#editpatch').dialog('open');
 	});
@@ -219,8 +227,10 @@ function addPatch() {
 	patches.push(new Patch(date, time, folder, new Info(name, merchant, cutline)));
 	currentPatch = patches.length - 1;
 	
-	patches[currentPatch].aemhome = aemhome.value;
-	patches[currentPatch].aemother = aemother.value;
+	if (brand === 'NM') {
+		patches[currentPatch].aemhome = aemhome.value;
+		patches[currentPatch].aemother = aemother.value;
+	}
 	
 	buildOutput();
 }
@@ -387,14 +397,11 @@ function addTexts(inputsName, type, pathsName) {
 	
 	for (var i = 0; i < inputs.length; i++) {
 		if (!inputs[i].value) { continue; }
-		else if (pathsName) {
-			name = inputs[i].value;
-			path = paths[i].value;
-		} else {
-			name = inputs[i].parentElement.textContent.replace(':', ' -') + inputs[i].value;
-			path = inputs[i].getAttribute('data-path');
-		}
+		else if (pathsName) { path = paths[i].value; }
+		else { path = inputs[i].getAttribute('data-path'); }
 		
+		name = inputs[i].parentElement.textContent.replace(':', ' -') + inputs[i].value;
+
 		assets.push(new Asset(name, parseInt(type), path));
 	}
 	
@@ -467,13 +474,11 @@ function getLink(type, path) {
 			case 3:
 				href += 'category/' + path + '/r_main_drawer_promo.html'; break;
 			case 4:
-				href += 'category/' + path + '/r_head_long.html'; break;
+				if (build === 0) { href += 'category/' + path + '/r_head_long.html'; }
+				else { href += path + '/c.cat?cacheCheckSeconds=1'; }
+				break;
 			case 5:
-				href += 'category/popups/r_horchow_popup.html'; break;
-			case 6:
-				href += 'category/search/r_promo.html'; break;
-			case 7:
-				href += 'category/product/r_promo1.html'; break;
+				href += 'category/' + path + '.html'; break;
 			default:
 				return '';
 		}
