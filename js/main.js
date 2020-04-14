@@ -21,6 +21,9 @@ $(document).ready(function() {
 	$('#approvaltime').blur(function() {
 		if (build === 0) { buildOutput(); }
 	});
+	$('#approvalday').change(function() {
+		if (build === 0) { buildOutput(); }
+	});
 	
 	$('#accordion').accordion({
 		heightStyle: 'content',
@@ -65,8 +68,8 @@ $(document).ready(function() {
 					info[i].name = names[i].value;
 					info[i].merchant = merchants[i].value;
 					
-					if (brand === 'NM' && selections[i].checked) { info[i].cutline = parseInt(selections[i].value); continue; }
-					else if (brand === 'NM' && selections2[i].checked) { info[i].cutline = parseInt(selections2[i].value); continue; }
+					if (selections[i].checked) { info[i].cutline = parseInt(selections[i].value); continue; }
+					else if (selections2[i].checked) { info[i].cutline = parseInt(selections2[i].value); continue; }
 					else { info[i].cutline = 0; }
 				}
 				
@@ -75,11 +78,8 @@ $(document).ready(function() {
 				patches[currentPatch].date = editdate.value;
 				patches[currentPatch].time = edittime.value;
 				patches[currentPatch].folder = editfolder.value;
-
-				if (brand === 'NM') {
-					patches[currentPatch].aemother = editother.value;
-					patches[currentPatch].aemhome = edithome.value;
-				}
+				patches[currentPatch].aemother = editother.value;
+				patches[currentPatch].aemhome = edithome.value;
 
 				buildOutput();
 			},
@@ -135,14 +135,12 @@ $(document).ready(function() {
 		var info = patches[currentPatch].info;
 		for (var i = 0; i < info.length; i++) {
 			temp += '<tr><td><label>Name:<input type="text" name="editname" value="' + info[i].name + '" /></label></td>' +
-				'<td><label>Merchant:<input type="text" name="editmerchant" value="' + info[i].merchant + '" /></label></td></tr>';
-			if (brand === 'NM') {
+				'<td><label>Merchant:<input type="text" name="editmerchant" value="' + info[i].merchant + '" /></label></td></tr>' +
 				'<tr><td colspan="2">Cutlines: <label><input type="checkbox" name="editlive" value="1" ';
-				if (info[i].cutline === 1) { temp += 'checked '; }
-				temp += '/>Live</label> <label><input type="checkbox" name="editremove" value="2" ';
-				if (info[i].cutline === 2) { temp += 'checked '; }
-				temp += '/>Remove</label></td></tr>';
-			}
+			if (info[i].cutline === 1) { temp += 'checked '; }
+			temp += '/>Live</label> <label><input type="checkbox" name="editremove" value="2" ';
+			if (info[i].cutline === 2) { temp += 'checked '; }
+			temp += '/>Remove</label></td></tr>';
 			
 			if (info.length > 1) { temp2 += '<option value="' + i + '">' + info[i].name + '</option>'; }
 		}
@@ -152,11 +150,8 @@ $(document).ready(function() {
 		editdate.value = patches[currentPatch].date;
 		edittime.value = patches[currentPatch].time;
 		editfolder.value = patches[currentPatch].folder;
-
-		if (brand === 'NM') {
-			editother.value = patches[currentPatch].aemother;
-			edithome.value = patches[currentPatch].aemhome;
-		}
+		editother.value = patches[currentPatch].aemother;
+		edithome.value = patches[currentPatch].aemhome;
 		
 		$('#editpatch').dialog('open');
 	});
@@ -221,16 +216,13 @@ function addPatch() {
 	if (!name) { $('#patchname').tooltip('enable').focus(); return; }
 	if (!date) { $('#patchdate').tooltip('enable').focus(); return; }
 	if (!time) { $('#patchtime').tooltip('enable').focus(); return; }
-	if (/\W/.test(folder)) { $('#patchfolder').tooltip('enable').focus(); return; }
 	if (!merchant) { $('#patchmerchant').tooltip('enable').focus(); return; }
 	
 	patches.push(new Patch(date, time, folder, new Info(name, merchant, cutline)));
 	currentPatch = patches.length - 1;
 	
-	if (brand === 'NM') {
-		patches[currentPatch].aemhome = aemhome.value;
-		patches[currentPatch].aemother = aemother.value;
-	}
+	patches[currentPatch].aemhome = aemhome.value;
+	patches[currentPatch].aemother = aemother.value;
 	
 	buildOutput();
 }
@@ -280,11 +272,12 @@ function combinePatches() {
 	var combined = 0;
 	for (var i = 0; i < patches.length; i++) {
 		for (var j = i + 1; j < patches.length; j++) {
-			if (patches[i].folder === patches[j].folder) {
+			if (patches[i].date === patches[j].date && patches[i].time === patches[j].time ) {
 				currentPatch = i;
 				currentAsset = -1;
 				patches[i].info = patches[i].info.concat(patches[j].info);
 				addAssets(patches[j].assets);
+				if (patches[j].folder) { patches[i].folder = patches[j].folder; }
 				if (patches[j].aemhome) { patches[i].aemhome = patches[j].aemhome; }
 				if (patches[j].aemother) { patches[i].aemother = patches[j].aemother; }
 				patches.splice(j, 1);
@@ -371,12 +364,12 @@ function selectText(containerid) {
 	}
 }
 
-function addSingle(nameId, pathId, typesName) {
+function addRadio(nameId, pathId, radiosName) {
 	if (currentPatch === -1) { noPatch(); return; }
 	
 	var name = document.getElementById(nameId).value;
 	var path = document.getElementById(pathId).value;
-	var types = document.getElementsByName(typesName);
+	var types = document.getElementsByName(radiosName);
 	var type;
 	for (var i = 0; i < types.length; i++) {
 		if (types[i].checked) { type = parseInt(types[i].value); break; }
@@ -388,33 +381,34 @@ function addSingle(nameId, pathId, typesName) {
 	buildOutput();
 }
 
-function addTexts(inputsName, type, pathsName) {
+function addTexts(inputsName, pathsName) {
 	if (currentPatch === -1) { noPatch(); return; }
 	
 	var inputs = document.getElementsByName(inputsName);
 	var paths = document.getElementsByName(pathsName);
-	var assets = [], name, path;
+	var assets = [], name, type, path;
 	
 	for (var i = 0; i < inputs.length; i++) {
 		if (!inputs[i].value) { continue; }
 		else if (pathsName) { path = paths[i].value; }
-		else { path = inputs[i].getAttribute('data-path'); }
+		else { path = ''; }
 		
 		name = inputs[i].parentElement.textContent.replace(':', ' -') + inputs[i].value;
+		type = parseInt(inputs[i].getAttribute('data-type'));
 
-		assets.push(new Asset(name, parseInt(type), path));
+		assets.push(new Asset(name, type, path));
 	}
 	
 	addAssets(assets);
 	buildOutput();
 }
 
-function addChecks(inputsName, type, statesName) {
+function addChecks(inputsName, statesName) {
 	if (currentPatch === -1) { noPatch(); return; }
 	
 	var inputs = document.getElementsByName(inputsName);
 	var states = document.getElementsByName(statesName);
-	var assets = [], name, path, state;
+	var assets = [], name, type, path, state;
 	
 	for (var i = 0; i < inputs.length; i++) {
 		if (!inputs[i].checked) { continue; }
@@ -422,18 +416,19 @@ function addChecks(inputsName, type, statesName) {
 		else { state = 0; }
 		
 		name = inputs[i].parentElement.textContent;
+		type = parseInt(inputs[i].getAttribute('data-type'));
 		path = inputs[i].value;
 		
-		assets.push(new Asset(name, parseInt(type), path, state));
+		assets.push(new Asset(name, type, path, state));
 	}
 	
 	addAssets(assets);
 	buildOutput();
 }
 
-function switchBuild(button) {
-	if (build === 0) { build = 1; button.value = 'Generate Approval'; }
-	else if (build === 1) { build = 0; button.value = 'Generate Schedule'; }
+function switchBuild() {
+	if (build === 0) { build = 1; }
+	else if (build === 1) { build = 0; }
 	buildOutput();
 }
 
@@ -488,26 +483,16 @@ function getLink(type, path) {
 		switch (type) {
 			case 0:
 				break;
-			case 2:
-				href += 'category/cat000000/r_header_promo2.html'; break;
-			case 4:
+			case 3:
+			case 8:
 				href += 'category/' + path + '.html'; break;
+			case 4:
 			case 5:
-			case 6:
-			case 7:
 				href += path + '/c.cat'; break;
-			case 8: 
+			case 6: 
 				href += 'category/promotiles/' + path + '.html'; break;
-			case 9:
+			case 7:
 				href += 'category/popup/Promo/' + path + '.html'; break;
-			case 10:
-				href += 'category/cat000000/promo_sticker/r_promo_sticker.html'; break;
-			case 11:
-				href += 'category/checkout_spc/promo_areas/checkout_top1.html'; break;
-			case 12:
-				href += 'category/storeresults/r_banner.html'; break;
-			case 13:
-				href += 'category/product/r_promo1.html'; break;
 			default:
 				return '';
 		}
@@ -550,9 +535,11 @@ function buildOutput() {
 	
 	if (build === 0) {
 		emailsub.innerHTML = '[' + brand + '] ' + temp + ' ' + lib[brand].header + ' Ready for Approval by ' + ((approvaltime.value) ? approvaltime.value : approvaltime.placeholder);
+		today = new Date(); today.setDate(today.getDate() + parseInt(approvalday.value));
 		header = 'The <span style="color: red"><b>' + temp + '</b></span> ' + lib[brand].header.toLowerCase() + ' now ready to review online.<br>' +
 			'Please respond with changes or approval by <span style="color: red"><b>' +
-			((approvaltime.value) ? (approvaltime.value + ' Today, ' + months[today.getMonth()] + ' ' + today.getDate()) : approvaltime.placeholder) + '.</span></b><br>';
+			((approvaltime.value) ? (approvaltime.value + ' ' + approvalday.options[approvalday.selectedIndex].textContent + ', ' +
+			months[today.getMonth()] + ' ' + today.getDate()) : approvaltime.placeholder) + '.</span></b><br>';
 	} else {
 		emailsub.innerHTML = '[' + brand + '] ' + temp + ' ' + lib[brand].header + ' Ready to Schedule';
 		header = 'Producers,<br>The ' + temp + ' ' + brand + ' ' + lib[brand].header.toLowerCase() + ' ready to schedule!<br>';

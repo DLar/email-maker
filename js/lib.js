@@ -45,7 +45,7 @@ const lib = {
 	},
 	SS: {
 		header: 'Merchant Site Support is',
-		domains: ['https://www.neimanmarcus.com/'],
+		domains: ['https://author-neimanmarcus-prod.adobecqms.net/mnt/overlay/dam/gui/content/collections.html/content/dam/collections'],
 		types: {
 			1: 'Graphic Header (DAM)',
 			2: 'Silo Banner (DAM)',
@@ -68,18 +68,13 @@ const lib = {
 		domains: ['https://lcref1/', 'https://www.lastcall.com/'],
 		types: {
 			1: 'Header Promos',
-			2: 'Promo Banner',
-			3: 'Homepage',
-			4: 'Drawers',
-			5: 'Silos',
-			6: 'Silo Bottom Bars',
-			7: 'Landing Pages',
-			8: 'Promo Tiles',
-			9: 'Popups',
-			10: 'Promo Sticker',
-			11: 'Checkout',
-			12: 'Store Results Banner',
-			13: 'PDP Button'
+			2: 'Homepage',
+			3: 'Drawers',
+			4: 'Silos',
+			5: 'Silo Bottom Bars',
+			6: 'Promo Tiles',
+			7: 'Popups',
+			8: 'Other'
 		}
 	},
 	APP: {
@@ -91,7 +86,7 @@ const lib = {
 		}
 	},
 	NTF: {
-		header: 'Notifications are',
+		header: 'App Notifications are',
 		domains: ['https://www.neimanmarcus.com/'],
 		types: {
 			1: 'Image',
