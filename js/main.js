@@ -549,9 +549,9 @@ function buildOutput() {
 	for (var i = 0; i < patches.length; i++) {
 		body += spacer + '<div patch="' + i + '">';
 		
-		if (build === 1) {
+		if (build === 1 || brand === 'NM') {
 			body += '<b><span style="color: gray">';
-			if (patches[i].folder) { body += 'Category Folder: ' + patches[i].folder + '<br>'; }
+			if (patches[i].folder && build !== 0) { body += 'Category Folder: ' + patches[i].folder + '<br>'; }
 			if (patches[i].aemhome) { body += 'Home Launch: ' + patches[i].aemhome + '<br>'; }
 			if (patches[i].aemother) { body += 'Other Launch: ' + patches[i].aemother + '<br>'; }
 			body += '<br></span></b>';
