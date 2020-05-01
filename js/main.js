@@ -10,7 +10,7 @@ $(document).ready(function() {
 	$('input[type=text]').blur(function() {
 		$(this).val($.trim($(this).val()));
 		
-		if ($(this).attr('id') != 'patchtime' && $(this).attr('id') != 'approvaltime' && $(this).attr('id') != 'edittime') {
+		if ($(this).attr('id') != 'patchtime' && $(this).attr('id') != 'approvaltime' && $(this).attr('id') != 'edittime' && $(this).attr('name') != 'copy') {
 			$(this).val($(this).val().replace(':', ''));
 		}
 	});
