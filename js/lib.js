@@ -26,15 +26,15 @@ const lib = {
 			10: 'Graphic Headers (Contentful)',
 			11: 'Silo Banners (Cloudinary)',
 			12: 'Promo Tiles (Cloudinary)',
-			13: 'Popups (ATG)',
+			20: 'Popups (ATG)',
 			14: 'Videos (ATG)',
-			15: 'Checkout (ATG)',
+			21: 'Checkout (ATG)',
 			16: 'PDP Banners (Contentful)'
 		}
 	},
 	'LB/MAG': {
 		header: 'Lookbook/Magazine is',
-		domains: ['https://www.neimanmarcus.com/'],
+		domains: ['https://wn.ref1.nmg/', 'https://www.neimanmarcus.com/'],
 		types: {
 			1: 'Lookbook (Contentful)',
 			2: 'Magazine (Contentful)',
@@ -60,41 +60,12 @@ const lib = {
 			2: 'Homepage',
 			3: 'Drawer Tickers',
 			4: 'Graphic Headers',
-			5: 'Other'
-		}
-	},
-	LC: {
-		header: 'Patches are',
-		domains: ['https://lcref1/', 'https://www.lastcall.com/'],
-		types: {
-			1: 'Header Promos',
-			2: 'Homepage',
-			3: 'Drawers',
-			4: 'Silos',
-			5: 'Silo Bottom Bars',
-			6: 'Promo Tiles',
-			7: 'Popups',
-			8: 'Other'
-		}
-	},
-	APP: {
-		header: 'Patches are',
-		domains: ['https://wn.test3.nmg/', 'https://www.neimanmarcus.com/'],
-		types: {
-			1: 'Home Screen',
-			2: 'Stores'
-		}
-	},
-	NTF: {
-		header: 'App Notifications are',
-		domains: ['https://www.neimanmarcus.com/'],
-		types: {
-			1: 'Image',
-			2: 'PUSH',
-			3: 'PULL<br>[message center title]',
-			4: '[image copy]',
-			5: '[supporting copy]',
-			6: '[button]'
+			5: 'Other',
+			8: 'Landing Pages',
+			10: 'Graphic Headers',
+			12: 'Promo Tiles',			
+			20: 'Popups',
+			21: 'Checkout'
 		}
 	}
 }
