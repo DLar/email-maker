@@ -32,6 +32,8 @@
 					<option value="King">Anthony</option>
 					<option value="Webb">Kelsey</option>
 					<option value="Preiss">Ronni</option>
+					<option value="Nozykowski">Jaimeson</option>
+					<option value="Clifton">Stefani</option>
 				</select>
 			</label><br>
 			<label>Approval By: <input type="text" maxlength="7" size="7" id="approvaltime" placeholder="ASAP" /></label>
@@ -54,38 +56,22 @@
 					<label>Name: <input type="text" id="patchname" title="Missing patch name" /></label><br>
 					<label>Date: <input type="text" size="5" id="patchdate" title="Missing patch date" /></label>
 					<label>Time: <input type="text" maxlength="9" size="9" id="patchtime" title="Missing patch time" /></label><br>
-					<label>Merchant: <input type="text" id="patchmerchant" title="Missing merchant name" /></label><br>
-					<label class="hide">Category Folder: <input type="text" id="patchfolder" /></label>
-					<label class="hide">Home Launch: <input type="text" id="aemhome" /></label>
-					<label class="hide">Other Launch: <input type="text" id="aemother" /></label>
-					<label class="hide"><input type="checkbox" name="patchcutline" value="1" />Live</label>
-					<label class="hide"><input type="checkbox" name="patchcutline" value="2" />Remove</label>
+					<label>Merchant: <input type="text" id="patchmerchant" title="Missing merchant name" value="Natasha Burns / Dalin Phann" /></label><br>
+					<label class="hide">Category Folder: <input type="text" id="patchfolder" value="n/a"/></label>
 					<input type="button" id="addpatch" onclick="addPatch()" value="Add" title="Need at least 1 patch before adding any assets" />
 				</div>
 				
 				<h3>Lookbook</h3>
 				<div>
 					<label>Lookbook: <span><input type="text" name="lb" data-type="1" /></span></label><br>
-					<label>Cat ID: <input type="text" name="lbpath" placeholder="cat" /></label><br>
-					<label>Graphic Header: <span><input type="text" name="lb" data-type="3" /></span></label><br>
-					<input class="hide" type="text" name="lbpath" />
-					<label>Silo Banner: <span><input type="text" name="lb" data-type="4" /></span></label><br>
-					<input class="hide" type="text" name="lbpath" />
-					<label>Promo Tile: <span><input type="text" name="lb" data-type="5" /></span></label><br>
-					<input class="hide" type="text" name="lbpath" />
+					<label>Editorial URL: <input type="text" name="lbpath" value="editorial/"/></label><br>
 					<input type="button" onclick="addTexts('lb','lbpath')" value="Add" />
 				</div>
 
 				<h3>Magazine</h3>
 				<div>
 					<label>Magazine: <span><input type="text" name="mag" data-type="2" /></span></label><br>
-					<label>Cat ID: <input type="text" name="magpath" placeholder="cat" /></label><br>
-					<label>Graphic Header: <span><input type="text" name="mag" data-type="3" /></span></label><br>
-					<input class="hide" type="text" name="magpath" />
-					<label>Silo Banner: <span><input type="text" name="mag" data-type="4" /></span></label><br>
-					<input class="hide" type="text" name="magpath" />
-					<label>Promo Tile: <span><input type="text" name="mag" data-type="5" /></span></label><br>
-					<input class="hide" type="text" name="magpath" />
+					<label>Editorial URL: <input type="text" name="magpath" value="editorial/" /></label><br>
 					<input type="button" onclick="addTexts('mag','magpath')" value="Add" />
 				</div>
 			</div>
@@ -161,3 +147,4 @@
 	</div>
 </body>
 </html>
+
