@@ -32,6 +32,8 @@
 					<option value="King">Anthony</option>
 					<option value="Webb">Kelsey</option>
 					<option value="Preiss">Ronni</option>
+					<option value="Nozykowski">Jaimeson</option>
+					<option value="Clifton">Stefani</option>					
 				</select>
 			</label><br>
 			<label>Approval By: <input type="text" maxlength="7" size="7" id="approvaltime" placeholder="ASAP" /></label>
@@ -56,8 +58,6 @@
 					<label>Time: <input type="text" maxlength="9" size="9" id="patchtime" title="Missing patch time" /></label><br>
 					<label>Merchant: <input type="text" id="patchmerchant" title="Missing merchant name" /></label><br>
 					<label>Category Folder: <input type="text" id="patchfolder" /></label><br>
-					<label>Home Launch: <input type="text" id="aemhome" /></label><br>
-					<label>Other Launch: <input type="text" id="aemother" /></label><br>
 					Cutlines: <label><input type="checkbox" name="patchcutline" value="1" />Live</label>
 					<label><input type="checkbox" name="patchcutline" value="2" />Remove</label><br>
 					<input type="button" id="addpatch" onclick="addPatch()" value="Add" title="Need at least 1 patch before adding any assets" />
@@ -66,16 +66,18 @@
 				<h3>Header Promos</h3>
 				<div>
 					<label>Header Promo 1: <input type="text" name="hpromo" data-type="1" value="Free Shipping, Free Returns" /></label><br>
-					<label>Header Promo 2: <input type="text" name="hpromo" data-type="1" value="Spring" /></label><br>
+					<label>Header Promo 2: <input type="text" name="hpromo" data-type="1" /></label><br>
 					<label>Header Promo 3: <input type="text" name="hpromo" data-type="1" /></label><br>
 					<label>Header Promo 4: <input type="text" name="hpromo" data-type="1" /></label><br>
+					<label>Header Promo 5: <input type="text" name="hpromo" data-type="1" /></label><br>
+					<label>Header Promo 6: <input type="text" name="hpromo" data-type="1" /></label><br>					
 					<input type="button" onclick="addTexts('hpromo')" value="Add" />
 				</div>
 				
 				<h3>Intl Header Promos</h3>
 				<div>
 					<label>Header Promo 1: <input type="text" name="ihpromo" data-type="2" value="Email Signup" /></label><br>
-					<label>Header Promo 2: <input type="text" name="ihpromo" data-type="2" value="Spring" /></label><br>
+					<label>Header Promo 2: <input type="text" name="ihpromo" data-type="2" /></label><br>
 					<label>Header Promo 3: <input type="text" name="ihpromo" data-type="2" /></label><br>
 					<label>Header Promo 4: <input type="text" name="ihpromo" data-type="2" /></label><br>
 					<input type="button" onclick="addTexts('ihpromo')" value="Add" />
@@ -87,17 +89,25 @@
 					<label>Row 1a: <input type="text" name="hmpg" data-type="3" /></label><br>
 					<label>Row 1b: <input type="text" name="hmpg" data-type="3" /></label><br>
 					<label>Row 1c: <input type="text" name="hmpg" data-type="3" /></label><br>
-					<label>Banner 2: <input type="text" name="hmpg" data-type="3" /></label><br>
+					<label>Banner 2: <input type="text" name="hmpg" data-type="3" /></label><br>																								
 					<label>Row 2a: <input type="text" name="hmpg" data-type="3" /></label><br>
 					<label>Row 2b: <input type="text" name="hmpg" data-type="3" /></label><br>
 					<label>Row 2c: <input type="text" name="hmpg" data-type="3" /></label><br>
+					<label>Visual Nav 1a: <input type="text" name="hmpg" data-type="3" /></label><br>
+					<label>Visual Nav 1b: <input type="text" name="hmpg" data-type="3" /></label><br>
+					<label>Visual Nav 1c: <input type="text" name="hmpg" data-type="3" /></label><br>
+					<label>Visual Nav 1d: <input type="text" name="hmpg" data-type="3" /></label><br>
+					<label>Visual Nav 1e: <input type="text" name="hmpg" data-type="3" /></label><br>	
 					<label>Banner 3: <input type="text" name="hmpg" data-type="3" /></label><br>
-					<label>Row 3: <input type="text" name="hmpg" data-type="3" /></label><br>
+					<label>Row 3 (Magazine): <input type="text" name="hmpg" data-type="3" /></label><br>
 					<label>Product Rail: <input type="text" name="hmpg" data-type="3" /></label><br>
 					<label>Row 4a: <input type="text" name="hmpg" data-type="3" /></label><br>
 					<label>Row 4b: <input type="text" name="hmpg" data-type="3" /></label><br>
 					<label>Row 4c: <input type="text" name="hmpg" data-type="3" /></label><br>
 					<label>Banner 4: <input type="text" name="hmpg" data-type="3" /></label><br>
+					<label>Services 1: <input type="text" name="hmpg" data-type="3" /></label><br>
+					<label>Services 2: <input type="text" name="hmpg" data-type="3" /></label><br>
+					<label>Services 3: <input type="text" name="hmpg" data-type="3" /></label><br>					
 					<input type="button" onclick="addTexts('hmpg')" value="Add" />
 				</div>
 				
@@ -122,15 +132,7 @@
 							<td>Default</td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="dt" data-type="5" value="" />Designers</label></td>
-							<td><input type="checkbox" name="dtstate" value="4" /></td>
-						</tr>
-						<tr>
 							<td><label><input type="checkbox" name="dt" data-type="5" value="" />Women's Clothing</label></td>
-							<td><input type="checkbox" name="dtstate" value="4" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="dt" data-type="5" value="" />Contemporary</label></td>
 							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 						<tr>
@@ -154,6 +156,18 @@
 							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 						<tr>
+							<td><label><input type="checkbox" name="dt" data-type="5" value="" />Men's Grooming</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" data-type="5" value="" />Men's Accessories</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" data-type="5" value="" />Men's Shoes</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>																		
+						<tr>
 							<td><label><input type="checkbox" name="dt" data-type="5" value="" />Kids</label></td>
 							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
@@ -173,11 +187,11 @@
 					<input type="button" onclick="addChecks('dt','dtstate')" value="Add" />
 				</div>
 				
-				<h3>Designer Indexes</h3>
+<!-- 				<h3>Designer Indexes</h3>
 				<div>
 					<label><input type="checkbox" name="di" data-type="6" value="cat000730" checked />Main Designer Index</label><br>
 					<input type="button" onclick="addChecks('di')" value="Add" />
-				</div>
+				</div> -->
 				
 				<h3>Silo Graphic Headers</h3>
 				<div>
@@ -185,46 +199,6 @@
 						<tr>
 							<td></td>
 							<td>Removed</td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat000001" />Women's Clothing</label></td>
-							<td><input type="checkbox" name="sghstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat58930763" />Contemporary</label></td>
-							<td><input type="checkbox" name="sghstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat000141" />Shoes</label></td>
-							<td><input type="checkbox" name="sghstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat13030735" />Handbags</label></td>
-							<td><input type="checkbox" name="sghstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat4870731" />Jewelry & Accessories</label></td>
-							<td><input type="checkbox" name="sghstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat000285" />Beauty</label></td>
-							<td><input type="checkbox" name="sghstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat000470" />Men</label></td>
-							<td><input type="checkbox" name="sghstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat5160748" />Kids</label></td>
-							<td><input type="checkbox" name="sghstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat000553" />Home</label></td>
-							<td><input type="checkbox" name="sghstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat000672" />Gifts</label></td>
-							<td><input type="checkbox" name="sghstate" value="3" /></td>
 						</tr>
 						<tr>
 							<td><label><input type="checkbox" name="sgh" data-type="7" value="cat980731" />Sale</label></td>
@@ -236,7 +210,7 @@
 				
 				<h3>Popups</h3>
 				<div>
-					<label>Name: <span><input type="text" name="popup" data-type="13" /></span></label><br>
+					<label>Name: <span><input type="text" name="popup" data-type="20" /></span></label><br>
 					<label>File Name: <input type="text" name="popuppath" /></label><br>
 					<input type="button" onclick="addTexts('popup','popuppath')" value="Add" />
 				</div>
@@ -264,27 +238,27 @@
 							<td>Removed</td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="co" data-type="15" value="checkout_spc/promo_areas/checkout_top1" />Banner 1</label></td>
+							<td><label><input type="checkbox" name="co" data-type="21" value="checkout_spc/promo_areas/checkout_top1" />Banner 1</label></td>
 							<td><input type="checkbox" name="costate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="co" data-type="15" value="checkout_spc/promo_areas/checkout_top2" />Banner 2</label></td>
+							<td><label><input type="checkbox" name="co" data-type="21" value="checkout_spc/promo_areas/checkout_top2" />Banner 2</label></td>
 							<td><input type="checkbox" name="costate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="co" data-type="15" value="checkout/shoppingcart/promo/cartPromo" />Cart Promo</label></td>
+							<td><label><input type="checkbox" name="co" data-type="21" value="checkout/shoppingcart/promo/cartPromo" />Cart Promo</label></td>
 							<td><input class="hide" type="checkbox" name="costate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="co" data-type="15" value="checkout/easycart/minicart_banner" />Mini Cart</label></td>
+							<td><label><input type="checkbox" name="co" data-type="21" value="checkout/easycart/minicart_banner" />Mini Cart</label></td>
 							<td><input class="hide" type="checkbox" name="costate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="co" data-type="15" value="checkout/shoppingcart/promosmart/smart_bag" />Smart Bag</label></td>
+							<td><label><input type="checkbox" name="co" data-type="21" value="checkout/shoppingcart/promosmart/smart_bag" />Smart Bag</label></td>
 							<td><input type="checkbox" name="costate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="co" data-type="15" value="checkout/shoppingcart/promosmart/smart_banner" />Smart Cart</label></td>
+							<td><label><input type="checkbox" name="co" data-type="21" value="checkout/shoppingcart/promosmart/smart_banner" />Smart Cart</label></td>
 							<td><input type="checkbox" name="costate" value="3" /></td>
 						</tr>
 					</table>
@@ -374,3 +348,4 @@
 	</div>
 </body>
 </html>
+
