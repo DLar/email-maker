@@ -32,6 +32,8 @@
 					<option value="King">Anthony</option>
 					<option value="Webb">Kelsey</option>
 					<option value="Preiss">Ronni</option>
+					<option value="Nozykowski">Jaimeson</option>
+					<option value="Clifton">Stefani</option>
 				</select>
 			</label><br>
 			<label>Approval By: <input type="text" maxlength="7" size="7" id="approvaltime" placeholder="ASAP" /></label>
@@ -56,10 +58,8 @@
 					<label>Time: <input type="text" maxlength="9" size="9" id="patchtime" title="Missing patch time" /></label><br>
 					<label>Merchant: <input type="text" id="patchmerchant" title="Missing merchant name" value="Lindsay Nickerson" /></label><br>
 					<label>Category Folder: <input type="text" id="patchfolder" /></label><br>
-					<label class="hide">Home Launch: <input type="text" id="aemhome" /></label>
-					<label class="hide">Other Launch: <input type="text" id="aemother" /></label>
-					<label class="hide"><input type="checkbox" name="patchcutline" value="1" />Live</label>
-					<label class="hide"><input type="checkbox" name="patchcutline" value="2" />Remove</label>
+					Cutlines: <label><input type="checkbox" name="patchcutline" value="1" />Live</label>
+					<label><input type="checkbox" name="patchcutline" value="2" />Remove</label><br>
 					<input type="button" id="addpatch" onclick="addPatch()" value="Add" title="Need at least 1 patch before adding any assets" />
 				</div>
 				
@@ -68,27 +68,27 @@
 					<label>Header Promo 1: <input type="text" name="hpromo" data-type="1" /></label><br>
 					<label>Header Promo 2: <input type="text" name="hpromo" data-type="1" /></label><br>
 					<label>Header Promo 3: <input type="text" name="hpromo" data-type="1" /></label><br>
-					<label>Header Promo 4: <input type="text" name="hpromo" data-type="1" /></label><br>
+					<label>Header Promo 4: <input type="text" name="hpromo" data-type="1" value="Subscribe & Save"/></label><br>
 					<input type="button" onclick="addTexts('hpromo')" value="Add" />
 				</div>
 				
 				<h3>Homepage</h3>
 				<div>
-					<label>Main 1: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 1a: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 1b: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 1c: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 1d: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 1e: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 1f: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 2: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 3a: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 3b: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 4: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 5: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Banner 1: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 1: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 2a: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 2b: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 2c: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 2d: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 2e: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 2f: <input type="text" name="hmpg" data-type="2" /></label><br>	
+					<label>Banner 2: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 3: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 4a: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 4b: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 4c: <input type="text" name="hmpg" data-type="2" /></label><br>
+					<label>Row 5 [Flash]: <input type="text" name="hmpg" data-type="2" /></label><br>					
 					<label>Row 6: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 7: <input type="text" name="hmpg" data-type="2" /></label><br>
-					<label>Row 8: <input type="text" name="hmpg" data-type="2" /></label><br>
 					<input type="button" onclick="addTexts('hmpg')" value="Add" />
 				</div>
 				
@@ -97,43 +97,47 @@
 					<table>
 						<tr>
 							<td></td>
-							<td>Removed</td>
+							<td>Clear/Removed</td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat17320733" data-type="3" />Furniture</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
+							<td><label><input type="checkbox" name="dt" data-type="3" value="" />Furniture</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat17320736" data-type="3" />Decor</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
+							<td><label><input type="checkbox" name="dt" data-type="3" value="" />Decor</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat17320734" data-type="3" />Bed & Bath</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
+							<td><label><input type="checkbox" name="dt" data-type="3" value="" />Bed & Bath</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat17320737" data-type="3" />Lighting</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
+							<td><label><input type="checkbox" name="dt" data-type="3" value="" />Lighting</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat17320739" data-type="3" />Rugs & Windows</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
+							<td><label><input type="checkbox" name="dt" data-type="3" value="" />Rugs & Windows</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat17320738" data-type="3" />Tabletop & Gourmet</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
+							<td><label><input type="checkbox" name="dt" data-type="3" value="" />Tabletop & Gourmet</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat17320741" data-type="3" />Outdoor</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
+							<td><label><input type="checkbox" name="dt" data-type="3" value="" />Outdoor</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat17320735" data-type="3" />Travel & Gifts</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
+							<td><label><input type="checkbox" name="dt" data-type="3" value="" />Holiday & Gifts</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="dt" value="cat20480739" data-type="3" />Inspiration</label></td>
-							<td><input type="checkbox" name="dtstate" value="3" /></td>
+							<td><label><input type="checkbox" name="dt" data-type="3" value="" />Inspiration</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
+						</tr>
+						<tr>
+							<td><label><input type="checkbox" name="dt" data-type="3" value="" />Sale</label></td>
+							<td><input type="checkbox" name="dtstate" value="4" /></td>
 						</tr>
 					</table>
 					<input type="button" onclick="addChecks('dt','dtstate')" value="Add" />
@@ -141,12 +145,32 @@
 				
 				<h3>Graphic Headers</h3>
 				<div>
-					<label>Name: <span><input type="text" name="ghname" data-type="4" /></span></label><br>
+					<input type="checkbox" id="isFlash" onclick="isFlashSale()" value="Flash Sale"/> Flash Sale<br>
+					<label>Name: <span><input type="text" name="ghname" data-type="10" /></span></label><br>
 					<label>Cat ID: <input type="text" name="ghpath" value="cat23410731" /></label><br>
 					<input type="button" onclick="addTexts('ghname','ghpath')" value="Add" />
 				</div>
+
+				<h3>Popups</h3>
+				<div>
+					<label>Name: <span><input type="text" name="popup" data-type="20" value="Horchow Global Popup" /></span></label><br>
+					<label>File Name: <input type="text" name="popuppath" value="r_horchow_popup"/></label><br>
+					<input type="button" onclick="addTexts('popup','popuppath')" value="Add" />
+				</div>
 				
-				<h3>Other</h3>
+				<h3>Everything Else</h3>
+				<div>
+					<label><input type="radio" name="other" value="8" checked />Landing Page</label><br>
+					<label><input type="radio" name="other" value="10" />Promo/Editorial Graphic Header</label><br>
+					<label><input type="radio" name="other" value="10" />Flash Graphic Header</label><br>
+					<label><input type="radio" name="other" value="12" />Promo Tile</label><br>
+					
+					<label>Name: <input type="text" id="othername" title="Missing name" /></label>
+					<label>Cat ID: <input type="text" id="otherpath" placeholder="cat" /></label><br>
+					<input type="button" onclick="addRadio('othername','otherpath','other')" value="Add" />
+				</div>
+				
+				<h3>Checkout</h3>
 				<div>
 					<table>
 						<tr>
@@ -154,19 +178,15 @@
 							<td>Removed</td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="other" value="popups/r_horchow_popup" data-type="5" />Popup</label></td>
-							<td><input class="hide" type="checkbox" name="otherstate" value="3" /></td>
+							<td><label><input type="checkbox" name="co" data-type="21" value="product/r_promo1.html" />Banner 1</label></td>
+							<td><input type="checkbox" name="costate" value="3" /></td>
 						</tr>
 						<tr>
-							<td><label><input type="checkbox" name="other" value="search/r_promo" data-type="5" />Search</label></td>
-							<td><input class="hide" type="checkbox" name="otherstate" value="3" /></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" name="other" value="product/r_promo1" data-type="5" />Checkout</label></td>
-							<td><input type="checkbox" name="otherstate" value="3" /></td>
+							<td><label><input type="checkbox" name="co" data-type="21" value="search/r_promo.html" />Search Banner</label></td>
+							<td><input type="checkbox" name="costate" value="3" /></td>
 						</tr>
 					</table>
-					<input type="button" onclick="addChecks('other','otherstate')" value="Add" />
+					<input type="button" onclick="addChecks('co','costate')" value="Add" />
 				</div>
 			</div>
 		</form>
@@ -183,7 +203,7 @@
 						<td><label>Time:
 						<input type="text" id="edittime" /></label></td>
 					</tr>
-					<tr class="hide">
+					<tr>
 						<td><label>Home Launch:
 						<input type="text" id="edithome" /></label></td>
 						<td><label>Other Launch:
@@ -217,8 +237,12 @@
 							<option value="1">Header Promo</option>
 							<option value="2">Homepage</option>
 							<option value="3">Drawer Ticker</option>
-							<option value="4">Graphic Header</option>
-							<option value="5">Other</option>
+							<option value="8">Landing Page</option>
+							<option value="10">Graphic Header</option>
+							<option value="12">Promo Tile</option>
+							<option value="13">Popup</option>
+							<option value="21">Checkout</option>
+							<option value="21">Search</option>
 						</select>
 					</label></td>
 					<td width="50%"><label>State:
