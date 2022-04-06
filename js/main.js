@@ -457,21 +457,19 @@ function getLink(type, path) {
 		}
 	}
 
-	if (brand === 'APP') {
-		if (type === 0 && build === 0) {
-			href += 'c/cat54940733?cacheCheckSeconds=1';
-			var href2 = 'https://s3-us-west-2.amazonaws.com/nmmobile-builds/cfa/operational/CFA_operational.html';
-			return '<b>Test App:</b> <a href="' + href2 + '">' + href2 + '</a><br><b>CSV File:</b> <a href="' + href + '">' + href + '</a>';
-		}
-		else if (type === 0 && build === 1) { href += 'category/cat000000/the_app/the_app.csv'; }
-		else if (type === 1 && path) { return ' <span style="color: green">(' + path + ')</span>'; }
-		else { return ''; }
+	let pathDisplay = (brand) => {
+ 		if (type > 5 && type < 20) {
+			build === 0 ? href += 'c/' + path + '?CMS_Preview=true' : href += 'c/' + path
+		} else if (type === 20) { 
+			build === 0 ? href = lib[brand].domains[0] + 'category/popups/' + path + '.html' : href = lib[brand].domains[1] + 'category/popups/' + path + '.html';
+		}  else if (type === 21) {
+			build === 0 ? href = lib[brand].domains[0] + 'category/' + path + '.html' : href = lib[brand].domains[1] + 'category/popups/' + path + '.html';
+		} else {
+			build === 0 ? href += path + '?CMS_Preview=true' : href += path
+		}		
 	}
 
-	if (brand === 'NTF') {
-		if (type === 1) { href += 'content/dam/neiman-marcus/FINAL/APP/NTF/' + path + '.jpg'; }
-		else { return ''; }
-	}
+	pathDisplay(brand);
 
 	return '<a href="' + href + '">' + href + '</a>';
 }
