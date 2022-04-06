@@ -150,8 +150,6 @@ $(document).ready(function() {
 		editdate.value = patches[currentPatch].date;
 		edittime.value = patches[currentPatch].time;
 		editfolder.value = patches[currentPatch].folder;
-		editother.value = patches[currentPatch].aemother;
-		edithome.value = patches[currentPatch].aemhome;
 		
 		$('#editpatch').dialog('open');
 	});
@@ -183,8 +181,6 @@ function Patch(date, time, folder, info) {
 	this.folder = folder;
 	this.info = [info];
 	this.assets = [];
-	this.aemother = '';
-	this.aemhome = '';
 }
 
 function Info(name, merchant, cutline) {
@@ -220,9 +216,6 @@ function addPatch() {
 	
 	patches.push(new Patch(date, time, folder, new Info(name, merchant, cutline)));
 	currentPatch = patches.length - 1;
-	
-	patches[currentPatch].aemhome = aemhome.value;
-	patches[currentPatch].aemother = aemother.value;
 	
 	buildOutput();
 }
@@ -278,8 +271,6 @@ function combinePatches() {
 				patches[i].info = patches[i].info.concat(patches[j].info);
 				addAssets(patches[j].assets);
 				if (patches[j].folder) { patches[i].folder = patches[j].folder; }
-				if (patches[j].aemhome) { patches[i].aemhome = patches[j].aemhome; }
-				if (patches[j].aemother) { patches[i].aemother = patches[j].aemother; }
 				patches.splice(j, 1);
 				j--;
 				combined++;
@@ -333,8 +324,6 @@ function exportJSON() {
 		
 		var temp = 'No_Name';
 		if (patches[i].folder) { temp = patches[i].folder; }
-		else if (patches[i].aemhome) { temp = patches[i].aemhome; }
-		else if (patches[i].aemother) { temp = patches[i].aemother; }
 		
 		saveAs(blob, temp + '.json');
 	}
@@ -426,6 +415,11 @@ function addChecks(inputsName, statesName) {
 	buildOutput();
 }
 
+const isFlashSale = () => {
+	let ghCat = document.getElementsByName('ghpath')[0];
+	$('#isFlash').prop('checked') ? ghCat.value = 'cat10020731' : ghCat.value = 'cat23410731';
+}
+
 function switchBuild() {
 	if (build === 0) { build = 1; }
 	else if (build === 1) { build = 0; }
@@ -433,86 +427,22 @@ function switchBuild() {
 }
 
 function getLink(type, path) {
-	var href = lib[brand].domains[build];
+	let href = lib[brand].domains[1]
 
-	if (brand === 'NM') {
-		switch (type) {
-			case 0:
-				if (build === 0) { href = lib[brand].domains[1] + '?personalize=true'; } break;
-			case 10:
-				if (!path) { return ''; }
-			case 6:
-			case 7:
-			case 8:
-			case 9:
-				href = lib[brand].domains[1] + 'c/' + path + '?cacheCheckSeconds=1'; break;
-			case 13:
-				href += 'category/popup/' + path + '/' + path + '.html'; break;
-			case 14:
-				href += 'c/' + path + '?cacheCheckSeconds=1'; break; 
-			case 15:
-				href += 'category/' + path + '.html'; break; 
-			default:
-				return '';
-		}
+
+	let pathDisplay = (brand) => {
+ 		if (type > 5 && type < 20) {
+			build === 0 ? href += 'c/' + path + '?CMS_Preview=true' : href += 'c/' + path
+		} else if (type === 20) { 
+			build === 0 ? href = lib[brand].domains[0] + 'category/popups/' + path + '.html' : href = lib[brand].domains[1] + 'category/popups/' + path + '.html';
+		}  else if (type === 21) {
+			build === 0 ? href = lib[brand].domains[0] + 'category/' + path + '.html' : href = lib[brand].domains[1] + 'category/popups/' + path + '.html';
+		} else {
+			build === 0 ? href += path + '?CMS_Preview=true' : href += path
+		}		
 	}
 
-	if (brand === 'LB/MAG') {
-		if (type === 1 || type === 2) { href += 'c/' + path + '?cacheCheckSeconds=1'; }
-		else { return ''; }
-	}
-
-	if (brand === 'HC') {
-		switch (type) {
-			case 0:
-				break;
-			case 3:
-				href += 'category/' + path + '/r_main_drawer_promo.html'; break;
-			case 4:
-				if (build === 0) { href += 'category/' + path + '/r_head_long.html'; }
-				else { href += path + '/c.cat?cacheCheckSeconds=1'; }
-				break;
-			case 5:
-				href += 'category/' + path + '.html'; break;
-			default:
-				return '';
-		}
-	}
-
-	if (brand === 'LC') {
-		switch (type) {
-			case 0:
-				break;
-			case 3:
-			case 8:
-				href += 'category/' + path + '.html'; break;
-			case 4:
-			case 5:
-				href += path + '/c.cat'; break;
-			case 6: 
-				href += 'category/promotiles/' + path + '.html'; break;
-			case 7:
-				href += 'category/popup/Promo/' + path + '.html'; break;
-			default:
-				return '';
-		}
-	}
-
-	if (brand === 'APP') {
-		if (type === 0 && build === 0) {
-			href += 'c/cat54940733?cacheCheckSeconds=1';
-			var href2 = 'https://s3-us-west-2.amazonaws.com/nmmobile-builds/cfa/operational/CFA_operational.html';
-			return '<b>Test App:</b> <a href="' + href2 + '">' + href2 + '</a><br><b>CSV File:</b> <a href="' + href + '">' + href + '</a>';
-		}
-		else if (type === 0 && build === 1) { href += 'category/cat000000/the_app/the_app.csv'; }
-		else if (type === 1 && path) { return ' <span style="color: green">(' + path + ')</span>'; }
-		else { return ''; }
-	}
-
-	if (brand === 'NTF') {
-		if (type === 1) { href += 'content/dam/neiman-marcus/FINAL/APP/NTF/' + path + '.jpg'; }
-		else { return ''; }
-	}
+	pathDisplay(brand);
 
 	return '<a href="' + href + '">' + href + '</a>';
 }
