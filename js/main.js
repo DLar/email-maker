@@ -429,33 +429,6 @@ function switchBuild() {
 function getLink(type, path) {
 	let href = lib[brand].domains[1]
 
-	if (brand === 'NM') {
- 		if (type > 5 && type < 20) {
-			build === 0 ? href += 'c/' + path + '?CMS_Preview=true' : href += 'c/' + path
-		} else if (type === 20) { 
-			build === 0 ? href = lib[brand].domains[0] + 'category/popups/' + path + '.html' : href = lib[brand].domains[1] + 'category/popups/' + path + '.html';
-		}  else if (type === 21) {
-			build === 0 ? href = lib[brand].domains[0] + 'category/' + path + '.html' : href = lib[brand].domains[1] + 'category/popups/' + path + '.html';
-		} else {
-			build === 0 ? href += path + '?CMS_Preview=true' : href += path
-		}
-	}
-
-	if (brand === 'LB/MAG') {
-		build === 0 ? href += path + '?CMS_Preview=true' : href += path
-	}
-
-	if (brand === 'HC') {
- 		if (type > 4 && type < 20) {
-			build === 0 ? href += 'c/' + path + '?CMS_Preview=true' : href += 'c/' + path
-		} else if (type === 20) { 
-			build === 0 ? href = lib[brand].domains[0] + 'category/popups/' + path + '.html' : href = lib[brand].domains[1] + 'category/popups/' + path + '.html';
-		}  else if (type === 21) {
-			build === 0 ? href = lib[brand].domains[0] + 'category/' + path + '.html' : href = lib[brand].domains[1] + 'category/popups/' + path;
-		} else {
-			build === 0 ? href += path + '?CMS_Preview=true' : href += path
-		}
-	}
 
 	let pathDisplay = (brand) => {
  		if (type > 5 && type < 20) {
