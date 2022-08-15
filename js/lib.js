@@ -54,7 +54,7 @@ const lib = {
 	},
 	HC: {
 		header: 'Patches are',
-		domains: ['https://wh.ref1.nmg/', 'https://www.horchow.com/'],
+		domains: ['https://whref1/', 'https://www.horchow.com/'],
 		types: {
 			1: 'Header Promos',
 			2: 'Homepage',
